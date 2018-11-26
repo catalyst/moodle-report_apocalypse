@@ -30,6 +30,7 @@ $page = optional_param('page', 0, PARAM_INT); // This represents which backup we
 
 admin_externalpage_setup('reportapocalypse', '', null, '', array('pagelayout'=>'report'));
 
+// This is an abitrary date based on the statements from browser developers relating to "mid 2019".
 $date = strtotime("2019-8-31 0:00");
 
 $remaining = $date - time();
@@ -120,7 +121,7 @@ $rs->close();
 // Check if we have any results and if not add a no records notification
 if (empty($table->data)) {
     $cell = new html_table_cell($OUTPUT->notification(get_string('noflashobjectsfound', 'report_apocalypse')));
-    $cell->colspan = 2;
+    $cell->colspan = 3;
     $table->data[] = new html_table_row(array($cell));
 }
 
