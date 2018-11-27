@@ -50,7 +50,7 @@ $table->head = array(
     get_string("course"),
     get_string('activitytype', 'report_apocalypse'),
     get_string("activity"),
-    ''
+    get_string('dualmode', 'report_apocalypse')
 );
 $table->attributes = array('class' => 'generaltable apocalypse-report');
 $table->data = array();
@@ -111,36 +111,13 @@ foreach ($rs as $activity) {
     $activityurl = new moodle_url("/mod/$shortcomponent/view.php", array('id' => $activity->instanceid));
     $coursecell = html_writer::link($courseurl, $activity->shortname);
     $activitycell = html_writer::link($activityurl, $activity->name);
+    $dualmode = empty($activity->html5) ? '' : get_string('yes');
 
-    $table->data[] = new html_table_row(array($coursecell, $shortcomponent, $activitycell, $activity->html5));
+    $table->data[] = new html_table_row(array($coursecell, $shortcomponent, $activitycell, $dualmode));
 }
 $rs->close();
 
-/*
-$rs = $DB->get_recordset_sql($sql, $params);
-foreach ($rs as $activity) {
-    $courseurl = new moodle_url('/course/view.php', array('id' => $activity->id));
-    $activityurl = new moodle_url('/mod/resource/view.php', array('id' => $activity->instanceid));
-    $coursecell = html_writer::link($courseurl, $activity->shortname);
-    $activitycell = html_writer::link($activityurl, $activity->name);
-
-    $table->data[] = new html_table_row(array($coursecell, 'Resource', $activitycell));
-}
-$rs->close();
-
-
-$rs = $DB->get_recordset_sql($sql, $params);
-foreach ($rs as $activity) {
-    $courseurl = new moodle_url('/course/view.php', array('id' => $activity->id));
-    $activityurl = new moodle_url('/mod/imscp/view.php', array('id' => $activity->instanceid));
-    $coursecell = html_writer::link($courseurl, $activity->shortname);
-    $activitycell = html_writer::link($activityurl, $activity->name);
-
-    $table->data[] = new html_table_row(array($coursecell, 'IMSCP', $activitycell));
-}
-$rs->close();
-*/
-// Check if we have any results and if not add a no records notification
+// Check if we have any results and if not add a no records notification.
 if (empty($table->data)) {
     $cell = new html_table_cell($OUTPUT->notification(get_string('noflashobjectsfound', 'report_apocalypse')));
     $cell->colspan = 3;
