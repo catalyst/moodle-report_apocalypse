@@ -65,9 +65,9 @@ foreach ($filetypes as $type) {
     $params[] = $type;
 }
 
-$sql = "SELECT main.id, main.shortname, main.name, main.instanceid, main.component, main.contextid, dual.html5
+$sql = "SELECT main.contextid, main.id, main.shortname, main.name, main.instanceid, main.component, dual.html5
           FROM ";
-$sql .= "(SELECT DISTINCT c.id, c.shortname, s.name, cx.instanceid, f.component, f.contextid
+$sql .= "(SELECT DISTINCT f.contextid, c.id, c.shortname, s.name, cx.instanceid, f.component
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid 
           JOIN {scorm} s on s.id = cx.instanceid
@@ -79,7 +79,7 @@ foreach ($filetypes as $type) {
     $params[] = $type;
 }
 $sql .= " UNION
-        SELECT DISTINCT c.id, c.shortname, r.name, cx.instanceid, f.component, f.contextid
+        SELECT DISTINCT f.contextid, c.id, c.shortname, r.name, cx.instanceid, f.component
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid 
           JOIN {resource} r on r.id = cx.instanceid
@@ -91,7 +91,7 @@ foreach ($filetypes as $type) {
     $params[] = $type;
 }
 $sql .= " UNION
-        SELECT DISTINCT c.id, c.shortname, r.name, cx.instanceid, f.component, f.contextid
+        SELECT DISTINCT f.contextid, c.id, c.shortname, r.name, cx.instanceid, f.component
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid 
           JOIN {imscp} r on r.id = cx.instanceid
