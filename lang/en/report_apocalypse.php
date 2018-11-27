@@ -26,9 +26,10 @@
 $string['pluginname'] = 'Flash apocalypse';
 $string['apocalypseinxdays'] = 'Flash apocalypse in {$a} days';
 $string['apocalypseishere'] = 'Flash apocalypse is here - Flash is no longer supported.';
-$string['description'] = '<p>Support for Adobe Flash is coming to an end, By mid-2019 most browsers will disable Flash player support and this will impact sites with Flash based content.</p>
-<p>This report lists activities in your site that contain flash-based content that need to be replaced as they will no longer work.</p>
-<p>If you require help converting your old flash content, contact the certified partner <a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse">Catalyst IT</a></p>';
+$string['description'] = '<p>This report lists activities, by type, in your site that contain flash-based content.</p>
+<p>Support for Flash ends in mid-2019 when most browsers will disable Flash player and your content will not display.</p>
+<p>Some elearning authoring tools can ‘dual publish’ with HTML5 as a fallback in case Flash isn’t supported by the browser. When HTML5 content has been detected it is shown as a Yes in the ‘HTML5 present’ column.</p>
+<p>If you require help replacing your old Flash content, contact the certified partner <a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse">Catalyst IT</a></p>';
 
 $string['noflashobjectsfound'] = 'No Flash objects were found in your site.';
 $string['activitytype'] = 'Type';
