@@ -61,48 +61,51 @@ $table->setup();
 $DB->sql_like('f.filename', ':f1');
 
 $filetypes = array('%.fla', '%.flv', '%.swf');
+// Check all modules in the site.
+$modules = $DB->get_records_menu('modules', array(), '', 'id, name');
 $params = array();
+// Create main set of likes to use.
 $likes = array();
 foreach ($filetypes as $type) {
     $likes[] = $DB->sql_like('f.filename', '?', false);
-    $params[] = $type;
 }
 
 $sql = "SELECT main.contextid, main.id, main.shortname, main.name, main.instanceid, main.component, dual.html5
-          FROM ";
-$sql .= "(SELECT DISTINCT f.contextid, c.id, c.shortname, s.name, cx.instanceid, f.component
+          FROM (";
+
+$firstmod = true;
+foreach ($modules as $module) {
+    foreach ($filetypes as $type) {
+        $params[] = $type;
+    }
+    if (!$firstmod) {
+        $sql .= " UNION ";
+    }
+    $sql .= " SELECT DISTINCT f.contextid, c.id, c.shortname, s.name, cx.instanceid, f.component
           FROM {files} f
-          JOIN {context} cx on cx.id = f.contextid 
-          JOIN {scorm} s on s.id = cx.instanceid
+          JOIN {context} cx on cx.id = f.contextid
+          JOIN {course_modules} cm on cm.id = cx.instanceid
+          JOIN {".$module."} s on s.id = cm.instance
           JOIN {course} c on c.id = s.course
-          WHERE f.component = 'mod_scorm' AND
+          WHERE f.component = 'mod_$module' AND
            (".implode(' or ', $likes).")";
 
+    $firstmod = false;
+}
+// Join with legacy files search.
 foreach ($filetypes as $type) {
     $params[] = $type;
 }
-$sql .= " UNION
-        SELECT DISTINCT f.contextid, c.id, c.shortname, r.name, cx.instanceid, f.component
+$sql .= " UNION SELECT DISTINCT f.contextid, c.id, c.shortname, f.filename as name, cx.instanceid, f.filearea as component
           FROM {files} f
-          JOIN {context} cx on cx.id = f.contextid 
-          JOIN {resource} r on r.id = cx.instanceid
-          JOIN {course} c on c.id = r.course
-          WHERE f.component = 'mod_resource' AND
-          (".implode(' or ', $likes).")";
+          JOIN {context} cx on cx.id = f.contextid
+          JOIN {course} c on c.id = cx.instanceid
+          WHERE f.component = 'course' AND
+                (".implode(' or ', $likes).")";
 
-foreach ($filetypes as $type) {
-    $params[] = $type;
-}
-$sql .= " UNION
-        SELECT DISTINCT f.contextid, c.id, c.shortname, r.name, cx.instanceid, f.component
-          FROM {files} f
-          JOIN {context} cx on cx.id = f.contextid 
-          JOIN {imscp} r on r.id = cx.instanceid
-          JOIN {course} c on c.id = r.course
-          WHERE f.component = 'mod_imscp' AND
-          (".implode(' or ', $likes).")) as main";
-
-// Now add info about Dual support.
+// Close off union sql.
+$sql .= ") as main";
+// Now join with data on all contexts that contain html5 content (possible dual support.)
 $sql .= " LEFT JOIN (SELECT distinct contextid, 1 as html5
                   FROM {files}
                  WHERE filename = 'index_lms_html5.html') dual on dual.contextid = main.contextid ";
@@ -118,6 +121,11 @@ foreach ($rs as $activity) {
     $shortcomponent = str_replace('mod_', '', $activity->component);
     $activityurl = new moodle_url("/mod/$shortcomponent/view.php", array('id' => $activity->instanceid));
     $coursecell = html_writer::link($courseurl, $activity->shortname);
+    if ($shortcomponent == 'legacy') {
+        $activityurl = new moodle_url("/files/index.php", array('contextid' => $activity->contextid));
+    } else {
+        $activityurl = new moodle_url("/mod/$shortcomponent/view.php", array('id' => $activity->instanceid));
+    }
     $activitycell = html_writer::link($activityurl, $activity->name);
     $dualmode = empty($activity->html5) ? '' : get_string('yes');
     $table->add_data(array($coursecell, $shortcomponent, $activitycell, $dualmode));
