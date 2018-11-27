@@ -49,46 +49,74 @@ $table = new html_table;
 $table->head = array(
     get_string("course"),
     get_string('activitytype', 'report_apocalypse'),
-    get_string("activity")
+    get_string("activity"),
+    ''
 );
 $table->attributes = array('class' => 'generaltable apocalypse-report');
 $table->data = array();
 
 $DB->sql_like('f.filename', ':f1');
 
+$filetypes = array('%.fla', '%.flv', '%.swf');
 $params = array();
-$like1 = $DB->sql_like('f.filename', ':f1', false);
-$params['f1'] = '%.swf';
-$like2 = $DB->sql_like('f.filename', ':f2', false);
-$params['f2'] = '%.flv';
-$like3 = $DB->sql_like('f.filename', ':f3', false);
-$params['f3'] = '%.fla';
+$likes = array();
+foreach ($filetypes as $type) {
+    $likes[] = $DB->sql_like('f.filename', '?', false);
+    $params[] = $type;
+}
 
-$sql = "SELECT DISTINCT c.id, c.shortname, s.name, cx.instanceid
+$sql = "SELECT main.id, main.shortname, main.name, main.instanceid, main.component, main.contextid, dual.html5
+          FROM ";
+$sql .= "(SELECT DISTINCT c.id, c.shortname, s.name, cx.instanceid, f.component, f.contextid
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid 
           JOIN {scorm} s on s.id = cx.instanceid
           JOIN {course} c on c.id = s.course
           WHERE f.component = 'mod_scorm' AND
-           ($like1 or $like2 or $like3)";
-$rs = $DB->get_recordset_sql($sql, $params);
-foreach ($rs as $activity) {
-    $courseurl = new moodle_url('/course/view.php', array('id' => $activity->id));
-    $activityurl = new moodle_url('/mod/scorm/view.php', array('id' => $activity->instanceid));
-    $coursecell = html_writer::link($courseurl, $activity->shortname);
-    $activitycell = html_writer::link($activityurl, $activity->name);
+           (".implode(' or ', $likes).")";
 
-    $table->data[] = new html_table_row(array($coursecell, 'SCORM', $activitycell));
+foreach ($filetypes as $type) {
+    $params[] = $type;
 }
-$rs->close();
-
-$sql = "SELECT DISTINCT c.id, c.shortname, r.name, cx.instanceid
+$sql .= " UNION
+        SELECT DISTINCT c.id, c.shortname, r.name, cx.instanceid, f.component, f.contextid
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid 
           JOIN {resource} r on r.id = cx.instanceid
           JOIN {course} c on c.id = r.course
           WHERE f.component = 'mod_resource' AND
-           ($like1 or $like2 or $like3)";
+          (".implode(' or ', $likes).")";
+
+foreach ($filetypes as $type) {
+    $params[] = $type;
+}
+$sql .= " UNION
+        SELECT DISTINCT c.id, c.shortname, r.name, cx.instanceid, f.component, f.contextid
+          FROM {files} f
+          JOIN {context} cx on cx.id = f.contextid 
+          JOIN {imscp} r on r.id = cx.instanceid
+          JOIN {course} c on c.id = r.course
+          WHERE f.component = 'mod_imscp' AND
+          (".implode(' or ', $likes).")) as main";
+
+// Now add info about Dual support.
+$sql .= " LEFT JOIN (SELECT distinct contextid, 1 as html5
+                  FROM {files}
+                 WHERE filename = 'index_lms_html5.html') dual on dual.contextid = main.contextid ";
+
+$rs = $DB->get_recordset_sql($sql, $params);
+foreach ($rs as $activity) {
+    $courseurl = new moodle_url('/course/view.php', array('id' => $activity->id));
+    $shortcomponent = str_replace('mod_', '', $activity->component);
+    $activityurl = new moodle_url("/mod/$shortcomponent/view.php", array('id' => $activity->instanceid));
+    $coursecell = html_writer::link($courseurl, $activity->shortname);
+    $activitycell = html_writer::link($activityurl, $activity->name);
+
+    $table->data[] = new html_table_row(array($coursecell, $shortcomponent, $activitycell, $activity->html5));
+}
+$rs->close();
+
+/*
 $rs = $DB->get_recordset_sql($sql, $params);
 foreach ($rs as $activity) {
     $courseurl = new moodle_url('/course/view.php', array('id' => $activity->id));
@@ -100,13 +128,7 @@ foreach ($rs as $activity) {
 }
 $rs->close();
 
-$sql = "SELECT DISTINCT c.id, c.shortname, r.name, cx.instanceid
-          FROM {files} f
-          JOIN {context} cx on cx.id = f.contextid 
-          JOIN {imscp} r on r.id = cx.instanceid
-          JOIN {course} c on c.id = r.course
-          WHERE f.component = 'mod_imscp' AND
-           ($like1 or $like2 or $like3)";
+
 $rs = $DB->get_recordset_sql($sql, $params);
 foreach ($rs as $activity) {
     $courseurl = new moodle_url('/course/view.php', array('id' => $activity->id));
@@ -117,7 +139,7 @@ foreach ($rs as $activity) {
     $table->data[] = new html_table_row(array($coursecell, 'IMSCP', $activitycell));
 }
 $rs->close();
-
+*/
 // Check if we have any results and if not add a no records notification
 if (empty($table->data)) {
     $cell = new html_table_cell($OUTPUT->notification(get_string('noflashobjectsfound', 'report_apocalypse')));
