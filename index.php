@@ -25,6 +25,7 @@
 
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 $page = optional_param('page', 0, PARAM_INT); // This represents which backup we are viewing.
 
@@ -36,6 +37,9 @@ $date = strtotime("2019-8-31 0:00");
 $remaining = $date - time();
 $daysremaining = floor($remaining / 86400);
 echo $OUTPUT->header();
+$imageurl = $OUTPUT->image_url('catalyst-logo', 'report_apocalypse');
+echo '<span class="catalyst-logo"><a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse"><img src="'.$imageurl.'" width="181"></a></span>';
+
 if ($daysremaining > 0) {
     echo $OUTPUT->heading(get_string('apocalypseinxdays', 'report_apocalypse', $daysremaining));
 } else {
