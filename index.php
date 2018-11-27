@@ -45,15 +45,18 @@ if ($daysremaining > 0) {
 echo $OUTPUT->box_start();
 echo get_string('description', 'report_apocalypse');
 echo $OUTPUT->box_end();
-$table = new html_table;
-$table->head = array(
+$table = new flexible_table('report_apocalypse');
+$table->define_baseurl($PAGE->url);
+$table->define_columns(array('shortname', 'component', 'name', 'html5'));
+$table->define_headers(array(
     get_string("course"),
     get_string('activitytype', 'report_apocalypse'),
     get_string("activity"),
     get_string('dualmode', 'report_apocalypse')
-);
-$table->attributes = array('class' => 'generaltable apocalypse-report');
-$table->data = array();
+));
+$table->sortable(true);
+$table->set_attribute('class', 'generaltable generalbox');
+$table->setup();
 
 $DB->sql_like('f.filename', ':f1');
 
@@ -103,29 +106,29 @@ $sql .= " UNION
 $sql .= " LEFT JOIN (SELECT distinct contextid, 1 as html5
                   FROM {files}
                  WHERE filename = 'index_lms_html5.html') dual on dual.contextid = main.contextid ";
-
+$sort = $table->get_sql_sort();
+if (!empty($sort)) {
+    $sql .= " ORDER BY ".$sort;
+}
 $rs = $DB->get_recordset_sql($sql, $params);
+$hasdata = false;
 foreach ($rs as $activity) {
+    $hasdata = true;
     $courseurl = new moodle_url('/course/view.php', array('id' => $activity->id));
     $shortcomponent = str_replace('mod_', '', $activity->component);
     $activityurl = new moodle_url("/mod/$shortcomponent/view.php", array('id' => $activity->instanceid));
     $coursecell = html_writer::link($courseurl, $activity->shortname);
     $activitycell = html_writer::link($activityurl, $activity->name);
     $dualmode = empty($activity->html5) ? '' : get_string('yes');
-
-    $table->data[] = new html_table_row(array($coursecell, $shortcomponent, $activitycell, $dualmode));
+    $table->add_data(array($coursecell, $shortcomponent, $activitycell, $dualmode));
 }
 $rs->close();
 
 // Check if we have any results and if not add a no records notification.
-if (empty($table->data)) {
-    $cell = new html_table_cell($OUTPUT->notification(get_string('noflashobjectsfound', 'report_apocalypse')));
-    $cell->colspan = 3;
-    $table->data[] = new html_table_row(array($cell));
+if (!$hasdata) {
+    $table->add_data(array($OUTPUT->notification(get_string('noflashobjectsfound', 'report_apocalypse'))));
 }
 
 // Display the report.
-echo $OUTPUT->box_start();
-echo html_writer::table($table);
-echo $OUTPUT->box_end();
+$table->finish_output();
 echo $OUTPUT->footer();
