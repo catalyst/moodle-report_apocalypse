@@ -29,6 +29,7 @@ require_once($CFG->libdir . '/tablelib.php');
 
 $page = optional_param('page', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_RAW);
+$perpage = optional_param('perpage', 50, PARAM_INT);
 
 admin_externalpage_setup('reportapocalypse', '', null, '',
     array('pagelayout' => 'report'));
@@ -125,7 +126,18 @@ $sort = $table->get_sql_sort();
 if (!empty($sort)) {
     $sql .= " ORDER BY ".$sort;
 }
-$rs = $DB->get_recordset_sql($sql, $params);
+
+$limitfrom = 0;
+$limitnum = 0;
+// Get count of all records for pagination.
+if (!$download) {
+    $count = $DB->count_records_sql("SELECT count(*) FROM ($sql) as allr", $params);
+    $table->pagesize($perpage, $count);
+    $limitfrom = $table->get_page_start();
+    $limitnum = $table->get_page_size();
+}
+
+$rs = $DB->get_recordset_sql($sql, $params, $limitfrom, $limitnum);
 $hasdata = false;
 foreach ($rs as $activity) {
     $hasdata = true;
