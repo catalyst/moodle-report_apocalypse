@@ -34,3 +34,4 @@ $string['description'] = '<p>This report lists activities, by type, in your site
 $string['noflashobjectsfound'] = 'No Flash objects were found in your site.';
 $string['activitytype'] = 'Type';
 $string['dualmode'] = 'HTML5 present';
+$string['privacy:metadata'] = 'The Apocalypse reports plugin does not store any personal data.';
