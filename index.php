@@ -37,6 +37,9 @@ admin_externalpage_setup('reportapocalypse', '', null, '',
 // This is an abitrary date based on the statements from browser developers relating to "mid 2019".
 $date = strtotime("2019-8-31 0:00");
 
+// List of course category id's and their name to allow display in the report.
+$coursecategorynames = $DB->get_records_menu('course_categories', array(), '', 'id, name');
+
 $exportfilename = "flash-apocalypse-report";
 $table = new flexible_table('report_apocalypse');
 $table->show_download_buttons_at(array(TABLE_P_BOTTOM));
@@ -60,8 +63,9 @@ if (!$table->is_downloading($download, $exportfilename)) {
 }
 
 $table->define_baseurl($PAGE->url);
-$table->define_columns(array('shortname', 'component', 'name', 'html5'));
+$table->define_columns(array('category', 'shortname', 'component', 'name', 'html5'));
 $table->define_headers(array(
+    get_string('category'),
     get_string("course"),
     get_string('activitytype', 'report_apocalypse'),
     get_string("activity"),
@@ -83,7 +87,7 @@ foreach ($filetypes as $type) {
     $likes[] = $DB->sql_like('f.filename', '?', false);
 }
 
-$sql = "SELECT main.contextid, main.id, main.shortname, main.name, main.instanceid, main.component, dual.html5
+$sql = "SELECT main.contextid, main.id, main.shortname, cat.path as category, main.name, main.instanceid, main.component, dual.html5
           FROM (";
 
 $firstmod = true;
@@ -94,7 +98,7 @@ foreach ($modules as $module) {
     if (!$firstmod) {
         $sql .= " UNION ";
     }
-    $sql .= " SELECT DISTINCT f.contextid, c.id, c.shortname, s.name, cx.instanceid, f.component
+    $sql .= " SELECT DISTINCT f.contextid, c.id, c.shortname, c.category, s.name, cx.instanceid, f.component
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid
           JOIN {course_modules} cm on cm.id = cx.instanceid
@@ -109,7 +113,7 @@ foreach ($modules as $module) {
 foreach ($filetypes as $type) {
     $params[] = $type;
 }
-$sql .= " UNION SELECT DISTINCT f.contextid, c.id, c.shortname, f.filename as name, cx.instanceid, f.filearea as component
+$sql .= " UNION SELECT DISTINCT f.contextid, c.id, c.shortname, c.category, f.filename as name, cx.instanceid, f.filearea as component
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid
           JOIN {course} c on c.id = cx.instanceid
@@ -122,6 +126,8 @@ $sql .= ") as main";
 $sql .= " LEFT JOIN (SELECT distinct contextid, 1 as html5
                   FROM {files}
                  WHERE filename = 'index_lms_html5.html') dual on dual.contextid = main.contextid ";
+// Now Join with course category for this course.
+$sql .= " JOIN {course_categories} cat ON cat.id = main.category";
 $sort = $table->get_sql_sort();
 if (!empty($sort)) {
     $sql .= " ORDER BY ".$sort;
@@ -145,6 +151,18 @@ foreach ($rs as $activity) {
     $shortcomponent = str_replace('mod_', '', $activity->component);
     $activityurl = new moodle_url("/mod/$shortcomponent/view.php", array('id' => $activity->instanceid));
     $coursecell = html_writer::link($courseurl, $activity->shortname);
+    $categorycell = '';
+    if (!empty($activity->category)) {
+        $categories = explode('/', $activity->category);
+        foreach ($categories as $c) {
+            if (!empty($c) && !empty($coursecategorynames[$c])) {
+                if (!empty($categorycell)) {
+                    $categorycell .= " / ";
+                }
+                $categorycell .= $coursecategorynames[$c];
+            }
+        }
+    }
     if ($shortcomponent == 'legacy') {
         $activityurl = new moodle_url("/files/index.php", array('contextid' => $activity->contextid));
     } else {
@@ -152,7 +170,7 @@ foreach ($rs as $activity) {
     }
     $activitycell = html_writer::link($activityurl, $activity->name);
     $dualmode = empty($activity->html5) ? '' : get_string('yes');
-    $table->add_data(array($coursecell, $shortcomponent, $activitycell, $dualmode));
+    $table->add_data(array($categorycell, $coursecell, $shortcomponent, $activitycell, $dualmode));
 }
 $rs->close();
 
