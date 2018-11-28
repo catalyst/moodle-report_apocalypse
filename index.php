@@ -48,8 +48,10 @@ if (!$table->is_downloading($download, $exportfilename)) {
     $remaining = $date - time();
     $daysremaining = floor($remaining / 86400);
     echo $OUTPUT->header();
-    $imageurl = $OUTPUT->image_url('catalyst-logo', 'report_apocalypse');
-    echo '<span class="catalyst-logo"><a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse"><img src="' . $imageurl . '" width="181"></a></span>';
+    $imageurl = $CFG->wwwroot .'/report/apocalypse/pix/catalyst-logo.svg'; // Not using image_url for old site support.
+    echo '<span class="catalyst-logo">
+          <a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse">
+          <img src="' . $imageurl . '" width="181"></a></span>';
 
     if ($daysremaining > 0) {
         echo $OUTPUT->heading(get_string('apocalypseinxdays', 'report_apocalypse', $daysremaining));
