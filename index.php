@@ -27,9 +27,10 @@ require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/tablelib.php');
 
-$page = optional_param('page', 0, PARAM_INT); // This represents which backup we are viewing.
+$page = optional_param('page', 0, PARAM_INT);
 
-admin_externalpage_setup('reportapocalypse', '', null, '', array('pagelayout'=>'report'));
+admin_externalpage_setup('reportapocalypse', '', null, '',
+    array('pagelayout' => 'report'));
 
 // This is an abitrary date based on the statements from browser developers relating to "mid 2019".
 $date = strtotime("2019-8-31 0:00");
