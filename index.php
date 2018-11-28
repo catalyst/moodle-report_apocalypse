@@ -28,6 +28,7 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/tablelib.php');
 
 $page = optional_param('page', 0, PARAM_INT);
+$download = optional_param('download', '', PARAM_RAW);
 
 admin_externalpage_setup('reportapocalypse', '', null, '',
     array('pagelayout' => 'report'));
@@ -35,22 +36,28 @@ admin_externalpage_setup('reportapocalypse', '', null, '',
 // This is an abitrary date based on the statements from browser developers relating to "mid 2019".
 $date = strtotime("2019-8-31 0:00");
 
-$remaining = $date - time();
-$daysremaining = floor($remaining / 86400);
-echo $OUTPUT->header();
-$imageurl = $OUTPUT->image_url('catalyst-logo', 'report_apocalypse');
-echo '<span class="catalyst-logo"><a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse"><img src="'.$imageurl.'" width="181"></a></span>';
+$exportfilename = "flash-apocalypse-report";
+$table = new flexible_table('report_apocalypse');
+$table->show_download_buttons_at(array(TABLE_P_BOTTOM));
 
-if ($daysremaining > 0) {
-    echo $OUTPUT->heading(get_string('apocalypseinxdays', 'report_apocalypse', $daysremaining));
-} else {
-    echo $OUTPUT->heading(get_string('apocalypseishere', 'report_apocalypse'));
+if (!$table->is_downloading($download, $exportfilename)) {
+    $remaining = $date - time();
+    $daysremaining = floor($remaining / 86400);
+    echo $OUTPUT->header();
+    $imageurl = $OUTPUT->image_url('catalyst-logo', 'report_apocalypse');
+    echo '<span class="catalyst-logo"><a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse"><img src="' . $imageurl . '" width="181"></a></span>';
+
+    if ($daysremaining > 0) {
+        echo $OUTPUT->heading(get_string('apocalypseinxdays', 'report_apocalypse', $daysremaining));
+    } else {
+        echo $OUTPUT->heading(get_string('apocalypseishere', 'report_apocalypse'));
+    }
+
+    echo $OUTPUT->box_start();
+    echo get_string('description', 'report_apocalypse');
+    echo $OUTPUT->box_end();
 }
 
-echo $OUTPUT->box_start();
-echo get_string('description', 'report_apocalypse');
-echo $OUTPUT->box_end();
-$table = new flexible_table('report_apocalypse');
 $table->define_baseurl($PAGE->url);
 $table->define_columns(array('shortname', 'component', 'name', 'html5'));
 $table->define_headers(array(
@@ -141,7 +148,9 @@ $rs->close();
 if (!$hasdata) {
     $table->add_data(array($OUTPUT->notification(get_string('noflashobjectsfound', 'report_apocalypse'))));
 }
-
 // Display the report.
 $table->finish_output();
-echo $OUTPUT->footer();
+
+if (!$download) {
+    echo $OUTPUT->footer();
+}
