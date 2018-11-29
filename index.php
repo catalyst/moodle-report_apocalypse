@@ -65,7 +65,7 @@ if (!$table->is_downloading($download, $exportfilename)) {
 }
 
 $table->define_baseurl($PAGE->url);
-$table->define_columns(array('category', 'shortname', 'component', 'name', 'html5'));
+$table->define_columns(array('category', 'fullname', 'component', 'name', 'html5'));
 $table->define_headers(array(
     get_string('category'),
     get_string("course"),
@@ -89,7 +89,7 @@ foreach ($filetypes as $type) {
     $likes[] = $DB->sql_like('f.filename', '?', false);
 }
 
-$sql = "SELECT main.contextid, main.id, main.shortname, cat.path as category, main.name, main.instanceid, main.component, dual.html5
+$sql = "SELECT main.contextid, main.id, main.fullname, cat.path as category, main.name, main.instanceid, main.component, dual.html5
           FROM (";
 
 $firstmod = true;
@@ -100,7 +100,7 @@ foreach ($modules as $module) {
     if (!$firstmod) {
         $sql .= " UNION ";
     }
-    $sql .= " SELECT DISTINCT f.contextid, c.id, c.shortname, c.category, s.name, cx.instanceid, f.component
+    $sql .= " SELECT DISTINCT f.contextid, c.id, c.fullname, c.category, s.name, cx.instanceid, f.component
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid
           JOIN {course_modules} cm on cm.id = cx.instanceid
@@ -115,7 +115,7 @@ foreach ($modules as $module) {
 foreach ($filetypes as $type) {
     $params[] = $type;
 }
-$sql .= " UNION SELECT DISTINCT f.contextid, c.id, c.shortname, c.category, f.filename as name, cx.instanceid, f.filearea as component
+$sql .= " UNION SELECT DISTINCT f.contextid, c.id, c.fullname, c.category, f.filename as name, cx.instanceid, f.filearea as component
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid
           JOIN {course} c on c.id = cx.instanceid
@@ -152,7 +152,7 @@ foreach ($rs as $activity) {
     $courseurl = new moodle_url('/course/view.php', array('id' => $activity->id));
     $shortcomponent = str_replace('mod_', '', $activity->component);
     $activityurl = new moodle_url("/mod/$shortcomponent/view.php", array('id' => $activity->instanceid));
-    $coursecell = html_writer::link($courseurl, $activity->shortname);
+    $coursecell = html_writer::link($courseurl, $activity->fullname);
     $categorycell = '';
     if (!empty($activity->category)) {
         $categories = explode('/', $activity->category);
