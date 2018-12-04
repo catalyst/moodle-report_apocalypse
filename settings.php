@@ -25,7 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$ADMIN->add('reports', new admin_externalpage('reportapocalypse', get_string('pluginname', 'report_apocalypse'), "$CFG->wwwroot/report/apocalypse/index.php"));
+$ADMIN->add('reports', new admin_externalpage('reportapocalypse',
+    get_string('pluginname', 'report_apocalypse'), "$CFG->wwwroot/report/apocalypse/index.php"));
 
-// no report settings
+// No report settings.
 $settings = null;

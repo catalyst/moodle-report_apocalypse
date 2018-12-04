@@ -115,7 +115,8 @@ foreach ($modules as $module) {
 foreach ($filetypes as $type) {
     $params[] = $type;
 }
-$sql .= " UNION SELECT DISTINCT f.contextid, c.id, c.fullname, c.category, f.filename as name, cx.instanceid, f.filearea as component
+$sql .= " UNION SELECT DISTINCT f.contextid, c.id, c.fullname, c.category, f.filename as name,
+                                cx.instanceid, f.filearea as component
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid
           JOIN {course} c on c.id = cx.instanceid
