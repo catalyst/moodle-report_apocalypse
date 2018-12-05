@@ -89,7 +89,8 @@ foreach ($filetypes as $type) {
     $likes[] = $DB->sql_like('f.filename', '?', false);
 }
 
-$sql = "SELECT main.contextid, main.id, main.coursefullname, cat.path as category, main.name, main.instanceid, main.component, dual.html5
+
+$sql = "SELECT main.contextid, main.id, main.coursefullname, cat.path as category, main.name, main.instanceid, main.component, dualsupport.html5
           FROM (";
 
 $firstmod = true;
@@ -128,7 +129,7 @@ $sql .= ") as main";
 // Now join with data on all contexts that contain html5 content (possible dual support.)
 $sql .= " LEFT JOIN (SELECT distinct contextid, 1 as html5
                   FROM {files}
-                 WHERE filename = 'index_lms_html5.html') dual on dual.contextid = main.contextid ";
+                 WHERE filename = 'index_lms_html5.html') dualsupport on dualsupport.contextid = main.contextid ";
 // Now Join with course category for this course.
 $sql .= " JOIN {course_categories} cat ON cat.id = main.category";
 $sort = $table->get_sql_sort();
