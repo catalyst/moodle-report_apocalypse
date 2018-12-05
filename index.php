@@ -65,7 +65,7 @@ if (!$table->is_downloading($download, $exportfilename)) {
 }
 
 $table->define_baseurl($PAGE->url);
-$table->define_columns(array('category', 'fullname', 'component', 'name', 'html5'));
+$table->define_columns(array('category', 'coursefullname', 'component', 'name', 'html5'));
 $table->define_headers(array(
     get_string('category'),
     get_string("course"),
@@ -89,7 +89,8 @@ foreach ($filetypes as $type) {
     $likes[] = $DB->sql_like('f.filename', '?', false);
 }
 
-$sql = "SELECT main.contextid, main.id, main.fullname, cat.path as category, main.name, main.instanceid, main.component, dualsupport.html5
+
+$sql = "SELECT main.contextid, main.id, main.coursefullname, cat.path as category, main.name, main.instanceid, main.component, dualsupport.html5
           FROM (";
 
 $firstmod = true;
@@ -100,7 +101,7 @@ foreach ($modules as $module) {
     if (!$firstmod) {
         $sql .= " UNION ";
     }
-    $sql .= " SELECT DISTINCT f.contextid, c.id, c.fullname, c.category, s.name, cx.instanceid, f.component
+    $sql .= " SELECT DISTINCT f.contextid, c.id, c.fullname AS coursefullname, c.category, s.name, cx.instanceid, f.component
           FROM {files} f
           JOIN {context} cx on cx.id = f.contextid
           JOIN {course_modules} cm on cm.id = cx.instanceid
@@ -153,7 +154,7 @@ foreach ($rs as $activity) {
     $courseurl = new moodle_url('/course/view.php', array('id' => $activity->id));
     $shortcomponent = str_replace('mod_', '', $activity->component);
     $activityurl = new moodle_url("/mod/$shortcomponent/view.php", array('id' => $activity->instanceid));
-    $coursecell = html_writer::link($courseurl, $activity->fullname);
+    $coursecell = html_writer::link($courseurl, $activity->coursefullname);
     $categorycell = '';
     if (!empty($activity->category)) {
         $categories = explode('/', $activity->category);
