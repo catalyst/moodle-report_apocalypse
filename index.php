@@ -89,7 +89,6 @@ foreach ($filetypes as $type) {
     $likes[] = $DB->sql_like('f.filename', '?', false);
 }
 
-
 $sql = "SELECT main.contextid, main.id, main.coursefullname, cat.path as category, main.name, main.instanceid, main.component, dualsupport.html5
           FROM (";
 
