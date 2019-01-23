@@ -77,8 +77,6 @@ $table->sortable(true);
 $table->set_attribute('class', 'generaltable generalbox');
 $table->setup();
 
-$DB->sql_like('f.filename', ':f1');
-
 $filetypes = array('%.fla', '%.flv', '%.swf');
 // Check all modules in the site.
 $modules = $DB->get_records_menu('modules', array(), '', 'id, name');
