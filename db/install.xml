@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="report/apocalypse/db" VERSION="20190214" COMMENT="XMLDB file for Moodle report/apocalypse"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="report_apocalypse" COMMENT="Report outlining the presence of Flash components within activities">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="category" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="An HTML link to the course in question"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="The type of component or legacy if pre-Moodle 2.0"/>
+        <FIELD NAME="activity" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="An HTML link to the activity in question"/>
+        <FIELD NAME="html5present" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 if no html5 detected for activity, 1 if html5 detected"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
