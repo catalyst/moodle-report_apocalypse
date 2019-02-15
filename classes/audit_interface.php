@@ -15,18 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
- *
- * @package    report_apocalypse
- * @author     Dan Marsden
- * @copyright  2018 Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     report_apocalypse
+ * @author      Tom Dickman <tomdickman@catalyst-au.net>
+ * @copyright   2019 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+namespace report_apocalypse;
 
-$plugin->version   = 2019011500;
-$plugin->requires  = 2015051109; // Requires Moodle 2.9.
-$plugin->component = 'report_apocalypse';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.2';
+
+interface audit_interface {
+
+    public function __construct();
+
+    /**
+     * Run the audit
+     *
+     * @return this    for chaining methods
+     */
+    public function run();
+
+    /**
+     * Store the audit results in the database
+     */
+    public function store();
+
+}

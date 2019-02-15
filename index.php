@@ -134,6 +134,10 @@ if (!$hasdata) {
 // Display the report.
 $table->finish_output();
 
+$audit = new \report_apocalypse\flash_audit();
+
+$audit->run()->store();
+
 if (!$download) {
     echo $OUTPUT->footer();
 }
