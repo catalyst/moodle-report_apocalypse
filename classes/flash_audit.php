@@ -57,7 +57,7 @@ class flash_audit implements audit_interface {
     }
 
     /**
-     * Run the Flash Audit storing all results in database
+     * Run the Flash Audit storing and store resulting recordset in this instance
      *
      * @return this    For method chaining
      */
@@ -82,7 +82,7 @@ class flash_audit implements audit_interface {
      *
      * @throws \coding_exception
      */
-    public function store() {
+    public function store_results() {
 
         // Do this in a transaction to allow rollback if there is a failure
         try {
@@ -93,9 +93,11 @@ class flash_audit implements audit_interface {
                 foreach ($this->results as $activity) {
                     $record = new stdClass();
                     $record->category = $this->get_category_from_record($activity);
-                    $record->course = $this->get_course_from_record($activity);
+                    $record->courseurl = $this->get_course_url_from_record($activity);
+                    $record->coursefullname = $activity->coursefullname;
                     $record->type = str_replace('mod_', '', $activity->component);
-                    $record->activity = $this->get_activity_from_record($record->type, $activity);
+                    $record->activityurl = $this->get_activity_url_from_record($record->type, $activity);
+                    $record->activityname = $activity->name;
                     $record->html5present = empty($record->html5) ? 0 : 1;
                     $this->db->insert_record('report_apocalypse', $record, false);
                 }
@@ -215,9 +217,11 @@ class flash_audit implements audit_interface {
      *
      * @return string  HTML fragment
      */
-    public function get_course_from_record($record) {
+    public function get_course_url_from_record($record) {
+
         $courseurl = new moodle_url('/course/view.php', array('id' => $record->id));
-        return html_writer::link($courseurl, $record->coursefullname);
+        return $courseurl->out();
+
     }
 
     /**
@@ -226,12 +230,12 @@ class flash_audit implements audit_interface {
      *
      * @return string HTML fragment
      */
-    public function get_activity_from_record($type = '', $record) {
+    public function get_activity_url_from_record($type = '', $record) {
         if ($type == 'legacy') {
             $activityurl = new moodle_url("/files/index.php", array('contextid' => $record->contextid));
         } else {
             $activityurl = new moodle_url("/mod/$type/view.php", array('id' => $record->instanceid));
         }
-        return html_writer::link($activityurl, $record->name);
+        return $activityurl->out();
     }
 }

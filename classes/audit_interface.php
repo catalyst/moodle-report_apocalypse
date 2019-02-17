@@ -38,6 +38,6 @@ interface audit_interface {
     /**
      * Store the audit results in the database
      */
-    public function store();
+    public function store_results();
 
 }

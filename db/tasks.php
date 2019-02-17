@@ -25,10 +25,10 @@ defined('MOODLE_INTERNAL') || die();
 
 $tasks = [
     [
-        'classname' => 'report_apocalypse\task\conduct_flash_audit',
+        'classname' => 'report_apocalypse\task\scheduled_flash_audit',
         'blocking' => 0,
         'minute' => 'R',
-        'hour' => 'R',
+        'hour' => '4',
         'day' => '*',
         'month' => '*',
         'daysofweek' => '*',

@@ -136,7 +136,7 @@ $table->finish_output();
 
 $audit = new \report_apocalypse\flash_audit();
 
-$audit->run()->store();
+$audit->run()->store_results();
 
 if (!$download) {
     echo $OUTPUT->footer();

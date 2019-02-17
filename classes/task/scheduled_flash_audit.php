@@ -49,7 +49,7 @@ class scheduled_flash_audit extends scheduled_task {
 
         $audit = new flash_audit();
 
-        $audit->run()->store();
+        $audit->run()->store_results();
 
     }
 }
