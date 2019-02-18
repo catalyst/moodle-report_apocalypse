@@ -24,6 +24,7 @@
 namespace report_apocalypse\task;
 
 use \core\task\scheduled_task;
+use report_apocalypse\flash_audit;
 
 /**
  * Scheduled task class for conduct an audit of flash content.
@@ -49,7 +50,7 @@ class scheduled_flash_audit extends scheduled_task {
 
         $audit = new flash_audit();
 
-        $audit->run()->store_results();
+        $audit->run()->handle_results();
 
     }
 }

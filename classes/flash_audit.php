@@ -24,6 +24,7 @@
 namespace report_apocalypse;
 
 use stdClass;
+use DateTime;
 use moodle_url;
 use html_writer;
 
@@ -78,33 +79,70 @@ class flash_audit implements audit_interface {
     }
 
     /**
-     * Store the current results.
+     * Insert activity record into the report_apocalypse table
      *
-     * @throws \coding_exception
+     * @param $activity
      */
+    public function insert_activity_record($activity) {
+
+        $record = new stdClass();
+        $record->category = $this->get_category_from_record($activity);
+        $record->courseurl = $this->get_course_url_from_record($activity);
+        $record->coursefullname = $activity->coursefullname;
+        $record->type = str_replace('mod_', '', $activity->component);
+        $record->activityurl = $this->get_activity_url_from_record($record->type, $activity);
+        $record->activityname = $activity->name;
+        $record->html5present = empty($record->html5) ? 0 : 1;
+        $this->db->insert_record('report_apocalypse', $record, false);
+
+    }
+
+    /**
+     * Insert a record of the date/time and number of flash activities found into database
+     *
+     * @param int $count the count of activities to store in record
+     *
+     * @throws \Exception
+     */
+    public function insert_audit_record(int $count) {
+
+        $record = new stdClass();
+        $date = new DateTime();
+        $record->rundatetime = $date->getTimestamp();
+        $record->countflashactivities = $count;
+        $this->db->insert_record('report_apocalypse_audit', $record, false);
+
+    }
+
     public function store_results() {
 
-        // Do this in a transaction to allow rollback if there is a failure
-        try {
-            $transaction = $this->db->start_delegated_transaction();
+        if ($this->results->valid()) {
+            $count = 0;
 
-            $this->delete_records();
-            if ($this->results->valid()) {
-                foreach ($this->results as $activity) {
-                    $record = new stdClass();
-                    $record->category = $this->get_category_from_record($activity);
-                    $record->courseurl = $this->get_course_url_from_record($activity);
-                    $record->coursefullname = $activity->coursefullname;
-                    $record->type = str_replace('mod_', '', $activity->component);
-                    $record->activityurl = $this->get_activity_url_from_record($record->type, $activity);
-                    $record->activityname = $activity->name;
-                    $record->html5present = empty($record->html5) ? 0 : 1;
-                    $this->db->insert_record('report_apocalypse', $record, false);
-                }
-                $this->results->close();// TODO Add a database table to store transaction date/time of audit runs and update here
-            } else {
-                // TODO Add an error message
+            foreach ($this->results as $activity) {
+                $this->insert_activity_record($activity);
+                $count++;
             }
+            $this->results->close();
+            $this->insert_audit_record($count);
+        } else {
+            // TODO Add an error message
+        }
+
+    }
+
+    /**
+     * Store the current results.
+     *
+     * @throws \Exception
+     */
+    public function handle_results() {
+
+        $transaction = $this->db->start_delegated_transaction();
+        try {
+            $this->delete_records();
+            $this->store_results();
+
             $transaction->allow_commit();
         } catch (Exception $e) {
             $transaction->rollback($e);
