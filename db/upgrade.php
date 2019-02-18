@@ -53,4 +53,5 @@ function xmldb_report_apocalypse_upgrade($oldversion) {
         // Apocalypse savepoint reached.
         upgrade_plugin_savepoint(true, 2019011400, 'report', 'apocalypse');
     }
+    return true;
 }
