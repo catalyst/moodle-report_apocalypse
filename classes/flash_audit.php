@@ -34,12 +34,24 @@ use html_writer;
  */
 class flash_audit implements audit_interface {
 
+    /**
+     * @var object instance of the database global.
+     */
     protected $db;
 
+    /**
+     * @var string of SQL to be utilised for conducting audit.
+     */
     protected $sql;
 
+    /**
+     * @var array of the parameters to be applied to the SQL for audit.
+     */
     protected $params;
 
+    /**
+     * @var null moodle_recordset of audit results.
+     */
     protected $results = null;
 
     public function __construct() {
@@ -52,25 +64,53 @@ class flash_audit implements audit_interface {
 
         $this->db = $DB;
 
+        $this->load_latest_results_as_recordset_from_db();
+
         list($this->sql, $this->params) = $this->build_sql_and_parameters_for_audit(
                 $DB->get_records_menu('modules', array(), '', 'id, name')
             );
     }
 
     /**
-     * Run the Flash Audit storing and store resulting recordset in this instance
+     * Load the results of the most recent audit from database into this instance.
+     */
+    public function load_latest_results_as_recordset_from_db() {
+
+        $rs = $this->db->get_recordset('report_apocalypse');
+        $this->results = $rs->valid() ? $rs : null;
+
+    }
+
+    /**
+     * Close the results moodle_recordset of this instance.
+     */
+    public function remove_previous_results() {
+
+        if (isset($this->results) && !empty($this->results)) {
+            if($this->results->valid()) {
+                $this->results->close();
+            }
+            else {
+                $this->results = null;
+            }
+        }
+    }
+
+    /**
+     * Run the Flash Audit and store resulting moodle_recordset in this instance
      *
      * @return this    For method chaining
      */
     public function run() {
-        // Run the flash audit
+        // Remove any previous results from this instance to free up RDBMS resources.
+        $this->remove_previous_results();
         $this->results = $this->get_results_as_recordset($this->sql, $this->params);
 
         return $this;
     }
 
     /**
-     * Delete previous audit results
+     * Delete previous audit results from database.
      */
     public function delete_records() {
 
@@ -79,7 +119,7 @@ class flash_audit implements audit_interface {
     }
 
     /**
-     * Insert activity record into the report_apocalypse table
+     * Insert an activity's audit results into the report_apocalypse table
      *
      * @param $activity
      */
@@ -98,7 +138,7 @@ class flash_audit implements audit_interface {
     }
 
     /**
-     * Insert a record of the date/time and number of flash activities found into database
+     * Insert audit date/time and a count of flash activities found into report_apocalypse_audit table.
      *
      * @param int $count the count of activities to store in record
      *
@@ -114,6 +154,11 @@ class flash_audit implements audit_interface {
 
     }
 
+    /**
+     * Store the details of the audit in the database tables.
+     *
+     * @throws \Exception
+     */
     public function store_results() {
 
         if ($this->results->valid()) {
@@ -126,13 +171,13 @@ class flash_audit implements audit_interface {
             $this->results->close();
             $this->insert_audit_record($count);
         } else {
-            // TODO Add an error message
+            // TODO Log an error message
         }
 
     }
 
     /**
-     * Store the current results.
+     * Handle the current results, deleting old and storing new results.
      *
      * @throws \Exception
      */
@@ -150,7 +195,7 @@ class flash_audit implements audit_interface {
     }
 
     /**
-     * This function returns a list of the sql and parameters required to conduct the audit.
+     * Build a list of the sql and parameters required to conduct the audit.
      *
      * @param array $modules - the names of the modules to include.
      * @param string $sort - the field to sort by.
@@ -220,6 +265,11 @@ class flash_audit implements audit_interface {
         return array($sql, $params);
     }
 
+    /**
+     *
+     *
+     * @return mixed recordset containing audit results
+     */
     protected function get_results_as_recordset() {
 
         return $this->db->get_recordset_sql($this->sql, $this->params);
@@ -253,7 +303,7 @@ class flash_audit implements audit_interface {
     /**
      * @param mixed $record  a fieldset object containing a record
      *
-     * @return string  HTML fragment
+     * @return string  Resulting URL
      */
     public function get_course_url_from_record($record) {
 
@@ -266,7 +316,7 @@ class flash_audit implements audit_interface {
      * @param string $type  The type of the activity
      * @param mixed $record  a fieldset object containing a record
      *
-     * @return string HTML fragment
+     * @return string Resulting URL
      */
     public function get_activity_url_from_record($type = '', $record) {
         if ($type == 'legacy') {
