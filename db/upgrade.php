@@ -27,7 +27,7 @@ function xmldb_report_apocalypse_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2019011400) {
+    if ($oldversion < 2019011401) {
 
         // Define table report_apocalypse to be created.
         $table = new xmldb_table('report_apocalypse');

@@ -150,7 +150,7 @@ class flash_audit implements audit_interface {
         $date = new DateTime();
         $record->rundatetime = $date->getTimestamp();
         $record->countflashactivities = $count;
-        $this->db->insert_record('report_apocalypse_audit', $record, false);
+        $this->db->insert_record('report_apocalypse_audits', $record, false);
 
     }
 
