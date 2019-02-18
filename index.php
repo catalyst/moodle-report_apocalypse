@@ -28,6 +28,8 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/tablelib.php');
 require_once($CFG->dirroot . '/report/apocalypse/locallib.php');
 
+use report_apocalypse\{apocalypse_datetime, flash_audit, table};
+
 $page = optional_param('page', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_RAW);
 $perpage = optional_param('perpage', 50, PARAM_INT);
@@ -35,27 +37,26 @@ $perpage = optional_param('perpage', 50, PARAM_INT);
 admin_externalpage_setup('reportapocalypse', '', null, '',
     array('pagelayout' => 'report'));
 
-// This is an abitrary date based on the statements from browser developers relating to "mid 2019".
-$date = strtotime("2019-8-31 0:00");
+$title = get_string('pluginname', 'report_apocalypse');
 
-// List of course category id's and their name to allow display in the report.
-$coursecategorynames = $DB->get_records_menu('course_categories', array(), '', 'id, name');
+$PAGE->set_context(context_system::instance());
+$PAGE->set_title($title);
+$PAGE->set_heading($title);
+
+$audit = new flash_audit();
+$table = new table('report_apocalypse');
 
 $exportfilename = "flash-apocalypse-report";
-$table = new flexible_table('report_apocalypse');
-$table->show_download_buttons_at(array(TABLE_P_BOTTOM));
 
 if (!$table->is_downloading($download, $exportfilename)) {
-    $remaining = $date - time();
-    $daysremaining = floor($remaining / 86400);
     echo $OUTPUT->header();
     $imageurl = $CFG->wwwroot .'/report/apocalypse/pix/catalyst-logo.svg'; // Not using image_url for old site support.
     echo '<span class="catalyst-logo">
           <a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse">
           <img src="' . $imageurl . '" width="181"></a></span>';
 
-    if ($daysremaining > 0) {
-        echo $OUTPUT->heading(get_string('apocalypseinxdays', 'report_apocalypse', $daysremaining));
+    if (apocalypse_datetime::get_days_remaining() > 0) {
+        echo $OUTPUT->heading(get_string('apocalypseinxdays', 'report_apocalypse', apocalypse_datetime::get_days_remaining()));
     } else {
         echo $OUTPUT->heading(get_string('apocalypseishere', 'report_apocalypse'));
     }
@@ -90,7 +91,7 @@ $limitfrom = 0;
 $limitnum = 0;
 // Get count of all records for pagination.
 if (!$download) {
-    $count = $DB->count_records_sql("SELECT count(*) FROM ($sql) as allr", $params);
+    $count = $audit->count_records();
     $table->pagesize($perpage, $count);
     $limitfrom = $table->get_page_start();
     $limitnum = $table->get_page_size();
@@ -133,10 +134,6 @@ if (!$hasdata) {
 }
 // Display the report.
 $table->finish_output();
-
-$audit = new \report_apocalypse\flash_audit();
-
-$audit->run()->handle_results();
 
 if (!$download) {
     echo $OUTPUT->footer();

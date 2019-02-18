@@ -23,10 +23,11 @@
 
 namespace report_apocalypse;
 
+defined('MOODLE_INTERNAL') || die;
+
 use stdClass;
 use DateTime;
 use moodle_url;
-use html_writer;
 
 /**
  * Class flash_audit
@@ -72,6 +73,37 @@ class flash_audit implements audit_interface {
     }
 
     /**
+     * Get the moodle_recordset of audit results.
+     *
+     * @return moodle_recordset|null
+     */
+    public function get_results() {
+
+        return $this->results;
+
+    }
+
+    /**
+     * Get the SQL query string used to conduct audit.
+     *
+     * @return string SQL query string
+     */
+    public function get_sql() {
+
+        return $this->sql;
+    }
+
+    /**
+     * Get an array of the parameters utilised for audit.
+     *
+     * @return array the values passed into SQL query for audit
+     */
+    public function get_params() {
+
+        return $this->params;
+    }
+
+    /**
      * Load the results of the most recent audit from database into this instance.
      */
     public function load_latest_results_as_recordset_from_db() {
@@ -102,7 +134,6 @@ class flash_audit implements audit_interface {
      * @return this    For method chaining
      */
     public function run() {
-        // Remove any previous results from this instance to free up RDBMS resources.
         $this->remove_previous_results();
         $this->results = $this->get_results_as_recordset($this->sql, $this->params);
 
@@ -119,7 +150,7 @@ class flash_audit implements audit_interface {
     }
 
     /**
-     * Insert an activity's audit results into the report_apocalypse table
+     * Insert an activity's audit results into the report_apocalypse table.
      *
      * @param $activity
      */
@@ -195,7 +226,8 @@ class flash_audit implements audit_interface {
     }
 
     /**
-     * Build a list of the sql and parameters required to conduct the audit.
+     * Build a list consisting of the SQL query string and an array of the parameters
+     * required to conduct the audit.
      *
      * @param array $modules - the names of the modules to include.
      * @param string $sort - the field to sort by.
@@ -266,9 +298,9 @@ class flash_audit implements audit_interface {
     }
 
     /**
+     * Run SQL query to get moodle_recordset of audit results.
      *
-     *
-     * @return mixed recordset containing audit results
+     * @return moodle_recordset containing audit results
      */
     protected function get_results_as_recordset() {
 
@@ -276,6 +308,8 @@ class flash_audit implements audit_interface {
     }
 
     /**
+     * Get category from record
+     *
      * @param mixed $record  a fieldset object containing a record
      *
      * @return string  The category name or empty string if none found
@@ -326,4 +360,14 @@ class flash_audit implements audit_interface {
         }
         return $activityurl->out();
     }
+
+    /**
+     * Count how many records report will produce.
+     */
+    public function count_records() {
+
+        $this->db->count_records_sql("SELECT count(*) FROM ($this->sql) as allr", $this->params);
+
+    }
+
 }
