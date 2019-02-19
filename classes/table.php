@@ -38,21 +38,23 @@ class table extends flexible_table {
      * table constructor.
      *
      * @param string $uniqueid
-     * @param \moodle_recordset $records The recordset data to add to table
      *
      * @throws \coding_exception
      */
-    public function __construct(string $uniqueid, moodle_recordset $records) {
+    public function __construct(string $uniqueid) {
 
-        // This is an abitrary date based on the statements from browser developers relating to "mid 2019".
         parent::__construct($uniqueid);
         $this->show_download_buttons_at(array(TABLE_P_BOTTOM));
-        $this->init();
-        $this->build_rows($records);
+        $this->set_columns_and_headings();
 
     }
 
-    public function init() {
+    /**
+     * Define the column names and the headings to be displayed.
+     *
+     * @throws \coding_exception
+     */
+    public function set_columns_and_headings() {
         $this->define_columns(array('category', 'coursefullname', 'component', 'name', 'html5'));
         $this->define_headers(array(
             get_string('category'),
@@ -87,7 +89,7 @@ class table extends flexible_table {
      *
      * @throws \coding_exception
      */
-    public function build_rows($records) {
+    public function add_rows($records) {
         $this->hasdata = false;
 
         if($records->valid()) {

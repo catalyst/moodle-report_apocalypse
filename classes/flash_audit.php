@@ -63,25 +63,34 @@ class flash_audit implements audit_interface {
         global $DB;
 
         $this->db = $DB;
-
         $this->load_latest_results_as_recordset_from_db();
-
         list($this->sql, $this->params) = $this->build_sql_and_parameters_for_audit(
                 $DB->get_records_menu('modules', array(), '', 'id, name')
             );
     }
 
     /**
-     * Get the moodle_recordset of audit results.
+     * Get the moodle_recordset including all audit results.
      *
      * @return moodle_recordset|null
      */
     public function get_results() {
 
-        $this->remove_previous_results();
-        $this->load_latest_results_as_recordset_from_db();
         return $this->results;
 
+    }
+
+    /**
+     * Get a number of results as a moodle_recordset based on passed in limits.
+     *
+     * @param int $limitfrom return a subset of records, starting at this point (optional).
+     * @param int $limitnum return a subset comprising this many records (optional, required if $limitfrom is set).
+     *
+     * @return \moodle_recordset A moodle_recordset instance
+     */
+    public function get_limited_results($limitfrom=0, $limitnum=0) {
+
+        return $this->db->get_recordset('report_apocalypse', null, '', '*', $limitfrom, $limitnum);
     }
 
     /**
@@ -133,7 +142,7 @@ class flash_audit implements audit_interface {
      */
     public function run() {
         $this->remove_previous_results();
-        $this->results = $this->get_results_as_recordset($this->sql, $this->params);
+        $this->results = $this->run_audit_query($this->sql, $this->params);
 
         return $this;
     }
@@ -300,7 +309,7 @@ class flash_audit implements audit_interface {
      *
      * @return moodle_recordset containing audit results
      */
-    public function get_results_as_recordset() {
+    public function run_audit_query() {
 
         return $this->db->get_recordset_sql($this->sql, $this->params);
     }
@@ -364,11 +373,7 @@ class flash_audit implements audit_interface {
      */
     public function count_records() {
 
-        $this->db->count_records_sql("SELECT count(*) FROM ($this->sql) as allr", $this->params);
-
-    }
-
-    public function get_table_row_data() {
+        return $this->db->count_records_sql("SELECT count(*) FROM ($this->sql) as allr", $this->params);
 
     }
 

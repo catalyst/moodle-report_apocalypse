@@ -34,6 +34,7 @@ $page = optional_param('page', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_RAW);
 $perpage = optional_param('perpage', 50, PARAM_INT);
 
+// Calls require_login and performs permissions checks for admin pages.
 admin_externalpage_setup('reportapocalypse', '', null, '',
     array('pagelayout' => 'report'));
 
@@ -44,7 +45,7 @@ $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
 $audit = new flash_audit();
-$table = new table('report_apocalypse', $audit->get_results());
+$table = new table('report_apocalypse');
 
 $exportfilename = "flash-apocalypse-report";
 
@@ -71,7 +72,17 @@ $table->define_baseurl($PAGE->url);
 $table->sortable(true);
 $table->set_attribute('class', 'generaltable generalbox');
 $table->setup();
-$table->build_rows($audit->get_results());
+
+$limitfrom = 0;
+$limitnum = 0;
+
+if (!$download) {
+    $table->pagesize($perpage, $audit->count_records());
+    $limitfrom = $table->get_page_start();
+    $limitnum = $table->get_page_size();
+}
+
+$table->add_rows($audit->get_limited_results($limitfrom, $limitnum));
 
 // Display the report.
 $table->finish_output();
