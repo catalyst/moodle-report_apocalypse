@@ -26,15 +26,91 @@ namespace report_apocalypse;
 defined('MOODLE_INTERNAL') || die;
 
 use flexible_table;
+use moodle_recordset;
+use moodle_url;
+use html_writer;
 
 class table extends flexible_table {
 
-    public function __construct(string $uniqueid) {
+    protected $hasdata;
+
+    /**
+     * table constructor.
+     *
+     * @param string $uniqueid
+     * @param \moodle_recordset $records The recordset data to add to table
+     *
+     * @throws \coding_exception
+     */
+    public function __construct(string $uniqueid, moodle_recordset $records) {
 
         // This is an abitrary date based on the statements from browser developers relating to "mid 2019".
         parent::__construct($uniqueid);
         $this->show_download_buttons_at(array(TABLE_P_BOTTOM));
+        $this->init();
+        $this->build_rows($records);
 
+    }
+
+    public function init() {
+        $this->define_columns(array('category', 'coursefullname', 'component', 'name', 'html5'));
+        $this->define_headers(array(
+            get_string('category'),
+            get_string("course"),
+            get_string('activitytype', 'report_apocalypse'),
+            get_string("activity"),
+            get_string('dualmode', 'report_apocalypse')
+        ));
+    }
+
+    /**
+     * Build the row to be displayed from record.
+     *
+     * @param $record The record containing data to build row from
+     *
+     * @return array The data to add to table as a row
+     * @throws \moodle_exception
+     */
+    public function build_row_from_record($record) {
+
+        $courselink = html_writer::link(new moodle_url($record->courseurl), $record->coursefullname);
+        $activitylink = html_writer::link(new moodle_url($record->activityurl), $record->activityname);
+        $html5status = ($record->html5present) ? 'yes' : 'no';
+
+        return array($record->category, $courselink, $record->type, $activitylink, $html5status);
+    }
+
+    /**
+     * Build the table rows from moodle_recordset
+     *
+     * @param moodle_recordset $records The recordset of data to build table from.
+     *
+     * @throws \coding_exception
+     */
+    public function build_rows($records) {
+        $this->hasdata = false;
+
+        if($records->valid()) {
+            foreach ($records as $record) {
+                $this->hasdata = true;
+                $this->add_data($this->build_row_from_record($record));
+            }
+        }
+        $records->close();
+        $this->add_notification_if_no_data();
+    }
+
+    /**
+     * Check if we have any results and if not add a no records notification.
+     *
+     * @throws \coding_exception
+     */
+    protected function add_notification_if_no_data() {
+        global $OUTPUT;
+
+        if (!$this->hasdata) {
+            $this->add_data(array($OUTPUT->notification(get_string('noflashobjectsfound', 'report_apocalypse'))));
+        }
     }
 
 }

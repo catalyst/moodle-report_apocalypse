@@ -44,7 +44,7 @@ $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
 $audit = new flash_audit();
-$table = new table('report_apocalypse');
+$table = new table('report_apocalypse', $audit->get_results());
 
 $exportfilename = "flash-apocalypse-report";
 
@@ -67,71 +67,12 @@ if (!$table->is_downloading($download, $exportfilename)) {
 }
 
 $table->define_baseurl($PAGE->url);
-$table->define_columns(array('category', 'coursefullname', 'component', 'name', 'html5'));
-$table->define_headers(array(
-    get_string('category'),
-    get_string("course"),
-    get_string('activitytype', 'report_apocalypse'),
-    get_string("activity"),
-    get_string('dualmode', 'report_apocalypse')
-));
+
 $table->sortable(true);
 $table->set_attribute('class', 'generaltable generalbox');
 $table->setup();
+$table->build_rows($audit->get_results());
 
-// Check all modules in the site.
-$modules = $DB->get_records_menu('modules', array(), '', 'id, name');
-
-// Use table sort.
-$sort = $table->get_sql_sort();
-
-list($sql, $params) = report_apocalypse_sql($modules, $sort);
-
-$limitfrom = 0;
-$limitnum = 0;
-// Get count of all records for pagination.
-if (!$download) {
-    $count = $audit->count_records();
-    $table->pagesize($perpage, $count);
-    $limitfrom = $table->get_page_start();
-    $limitnum = $table->get_page_size();
-}
-
-$rs = $DB->get_recordset_sql($sql, $params, $limitfrom, $limitnum);
-$hasdata = false;
-foreach ($rs as $activity) {
-    $hasdata = true;
-    $courseurl = new moodle_url('/course/view.php', array('id' => $activity->id));
-    $shortcomponent = str_replace('mod_', '', $activity->component);
-    $activityurl = new moodle_url("/mod/$shortcomponent/view.php", array('id' => $activity->instanceid));
-    $coursecell = html_writer::link($courseurl, $activity->coursefullname);
-    $categorycell = '';
-    if (!empty($activity->category)) {
-        $categories = explode('/', $activity->category);
-        foreach ($categories as $c) {
-            if (!empty($c) && !empty($coursecategorynames[$c])) {
-                if (!empty($categorycell)) {
-                    $categorycell .= " / ";
-                }
-                $categorycell .= $coursecategorynames[$c];
-            }
-        }
-    }
-    if ($shortcomponent == 'legacy') {
-        $activityurl = new moodle_url("/files/index.php", array('contextid' => $activity->contextid));
-    } else {
-        $activityurl = new moodle_url("/mod/$shortcomponent/view.php", array('id' => $activity->instanceid));
-    }
-    $activitycell = html_writer::link($activityurl, $activity->name);
-    $dualmode = empty($activity->html5) ? '' : get_string('yes');
-    $table->add_data(array($categorycell, $coursecell, $shortcomponent, $activitycell, $dualmode));
-}
-$rs->close();
-
-// Check if we have any results and if not add a no records notification.
-if (!$hasdata) {
-    $table->add_data(array($OUTPUT->notification(get_string('noflashobjectsfound', 'report_apocalypse'))));
-}
 // Display the report.
 $table->finish_output();
 

@@ -57,7 +57,6 @@ class flash_audit implements audit_interface {
 
     public function __construct() {
         $this->init();
-
     }
 
     protected function init() {
@@ -79,6 +78,8 @@ class flash_audit implements audit_interface {
      */
     public function get_results() {
 
+        $this->remove_previous_results();
+        $this->load_latest_results_as_recordset_from_db();
         return $this->results;
 
     }
@@ -119,12 +120,9 @@ class flash_audit implements audit_interface {
     public function remove_previous_results() {
 
         if (isset($this->results) && !empty($this->results)) {
-            if($this->results->valid()) {
-                $this->results->close();
-            }
-            else {
-                $this->results = null;
-            }
+            $this->results->close();
+        } else {
+            $this->results = null;
         }
     }
 
@@ -302,7 +300,7 @@ class flash_audit implements audit_interface {
      *
      * @return moodle_recordset containing audit results
      */
-    protected function get_results_as_recordset() {
+    public function get_results_as_recordset() {
 
         return $this->db->get_recordset_sql($this->sql, $this->params);
     }
@@ -367,6 +365,10 @@ class flash_audit implements audit_interface {
     public function count_records() {
 
         $this->db->count_records_sql("SELECT count(*) FROM ($this->sql) as allr", $this->params);
+
+    }
+
+    public function get_table_row_data() {
 
     }
 
