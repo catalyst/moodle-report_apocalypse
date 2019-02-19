@@ -62,6 +62,8 @@ if (!$table->is_downloading($download, $exportfilename)) {
         echo $OUTPUT->heading(get_string('apocalypseishere', 'report_apocalypse'));
     }
 
+    echo get_string('apocalypselastaudit', 'report_apocalypse', userdate($audit->get_lastaudit()->rundatetime));
+
     echo $OUTPUT->box_start();
     echo get_string('description', 'report_apocalypse');
     echo $OUTPUT->box_end();

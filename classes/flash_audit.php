@@ -55,18 +55,24 @@ class flash_audit implements audit_interface {
      */
     protected $results = null;
 
-    public function __construct() {
-        $this->init();
-    }
+    /**
+     * @var stdClass of the last audit conducted including id, rundatetime and countflashactivities fields.
+     */
+    protected $lastaudit;
 
-    protected function init() {
+    /**
+     * flash_audit constructor.
+     * @throws \dml_exception
+     */
+    public function __construct() {
         global $DB;
 
         $this->db = $DB;
         $this->load_latest_results_as_recordset_from_db();
+        $this->set_lastaudit();
         list($this->sql, $this->params) = $this->build_sql_and_parameters_for_audit(
-                $DB->get_records_menu('modules', array(), '', 'id, name')
-            );
+            $DB->get_records_menu('modules', array(), '', 'id, name')
+        );
     }
 
     /**
@@ -114,6 +120,28 @@ class flash_audit implements audit_interface {
     }
 
     /**
+     * Set the lastaudit instance variable based on highest run datetime in table.
+     */
+    public function set_lastaudit() {
+
+        $sql = 'SELECT * FROM {report_apocalypse_audits} 
+                WHERE rundatetime = (SELECT MAX(rundatetime) FROM {report_apocalypse_audits})';
+
+        $this->lastaudit = $this->db->get_record_sql($sql);
+
+    }
+
+    /**
+     * Get a stdClass representation of the most recent audit details.
+     *
+     * @return \stdClass Details of the most recent audit run
+     */
+    public function get_lastaudit() {
+
+        return $this->lastaudit;
+    }
+
+    /**
      * Load the results of the most recent audit from database into this instance.
      */
     public function load_latest_results_as_recordset_from_db() {
@@ -143,6 +171,7 @@ class flash_audit implements audit_interface {
     public function run() {
         $this->remove_previous_results();
         $this->results = $this->run_audit_query($this->sql, $this->params);
+        $this->set_lastaudit();
 
         return $this;
     }

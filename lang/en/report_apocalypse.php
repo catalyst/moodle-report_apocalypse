@@ -36,3 +36,4 @@ $string['activitytype'] = 'Type';
 $string['dualmode'] = 'HTML5 present';
 $string['privacy:metadata'] = 'The Apocalypse reports plugin does not store any personal data.';
 $string['scheduledflashaudit'] = 'Scheduled Flash Audit';
+$string['apocalypselastaudit'] = 'Last audit run was {$a}';
