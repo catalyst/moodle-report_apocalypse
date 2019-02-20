@@ -25,8 +25,8 @@ namespace report_apocalypse;
 
 defined('MOODLE_INTERNAL') || die;
 
-use mod_lti\search\activity;
 use stdClass;
+use moodle_url;
 use DateTime;
 
 class audit_manager implements audit_interface {
@@ -42,7 +42,7 @@ class audit_manager implements audit_interface {
 
         $modules = self::get_all_modules();
         list($sql, $params) = self::build_sql_and_parameters_for_audit($modules);
-        $recordset = get_recordset_sql($sql, $params);
+        $recordset = $DB->get_recordset_sql($sql, $params);
 
         $transaction = $DB->start_delegated_transaction();
         try {
@@ -75,6 +75,7 @@ class audit_manager implements audit_interface {
      *
      * @return \moodle_recordset A moodle_recordset instance
      * @throws \dml_exception
+     * @throws \moodle_exception
      */
     public static function get_audit_results_paginated($limitfrom=0, $limitnum=0) {
         global $DB;
@@ -90,7 +91,9 @@ class audit_manager implements audit_interface {
      * Helper method to convert db records to workflow objects.
      *
      * @param array $records of workflows from db.
+     *
      * @return array of worklfow objects.
+     * @throws \moodle_exception
      */
     public static function get_instances(\moodle_recordset $records) {
         $activities = array();
@@ -178,7 +181,7 @@ class audit_manager implements audit_interface {
         $activity->coursefullname = $record->coursefullname;
         $activity->type = str_replace('mod_', '', $record->component);
         $activity->activityurl = self::get_activity_url_from_record($activity->type, $record);
-        $activity->activityname = $record->activityname;
+        $activity->activityname = $record->name;
         $activity->html5present = empty($record->html5) ? 0 : 1;
 
         return new audit_activity($activity);
@@ -197,16 +200,15 @@ class audit_manager implements audit_interface {
 
         // Get the course category names and their ids
         $coursecategorynames = $DB->get_records_menu('course_categories', array(), '', 'id, name');
-
         $category = '';
         if (!empty($record->category)) {
             $categories = explode('/', $record->category);
             foreach ($categories as $c) {
-                if (!empty($c) && in_array($c, $coursecategorynames)) {
+                if (!empty($c) && !empty($coursecategorynames[$c])) {
                     if (!empty($category)) {
                         $category .= " / ";
                     }
-                    $category .= $c;
+                    $category .= $coursecategorynames[$c];
                 }
             }
         }
@@ -215,9 +217,10 @@ class audit_manager implements audit_interface {
 
 
     /**
-     * @param mixed $record  a fieldset object containing a record
+     * @param mixed $record a fieldset object containing a record
      *
      * @return string  Resulting URL
+     * @throws \moodle_exception
      */
     public static function get_course_url_from_record($record) {
 
@@ -231,6 +234,7 @@ class audit_manager implements audit_interface {
      * @param mixed $record a fieldset object containing a record
      *
      * @return string Resulting URL
+     * @throws \moodle_exception
      */
     public static function get_activity_url_from_record($type = '', $record) {
         if ($type == 'legacy') {
