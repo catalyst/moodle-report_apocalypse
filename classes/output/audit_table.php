@@ -46,6 +46,18 @@ class audit_table extends table_sql implements renderable {
 
     protected $systemcontext;
 
+    /**
+     * audit_table constructor.
+     *
+     * @param string $uniqueid Unique id of table.
+     * @param \moodle_url $url Url where this table is displayed.
+     * @param int $page Current page number for pagination.
+     * @param int $perpage Audit records to display per page for pagination.
+     * @param string $download Format of download (csv, html etc.) or empty string if not downloading.
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     public function __construct(string $uniqueid, moodle_url $url, int $page=0, int $perpage=50, $download='') {
         parent::__construct($uniqueid);
 
@@ -70,26 +82,72 @@ class audit_table extends table_sql implements renderable {
 
     }
 
+    /**
+     * Get content for category column
+     *
+     * @param audit_activity $activity object
+     *
+     * @return string html used to display the column field.
+     */
     public function col_category($activity) {
         return $activity->get_category();
     }
 
+    /**
+     * Get content for courselink column
+     *
+     * @param audit_activity $activity object
+     *
+     * @return string html used to display the column field.
+     * @throws \moodle_exception
+     */
     public function col_courselink($activity) {
         return $activity->get_courselink();
     }
 
+    /**
+     * Get content for type column
+     *
+     * @param audit_activity $activity object
+     *
+     * @return string html used to display the column field.
+     */
     public function col_type($activity) {
         return $activity->get_type();
     }
 
+    /**
+     * Get content for activitylink column
+     *
+     * @param audit_activity $activity object
+     *
+     * @return string html used to display the column field.
+     * @throws \moodle_exception
+     */
     public function col_activitylink($activity) {
         return $activity->get_activitylink();
     }
 
-    public function col_html5present($activity) {
+    /**
+     * Get content for html5present column
+     *
+     * @param audit_activity $activity object
+     *
+     * @return string html used to display the column field.
+     */
+    public function col_html5present(audit_activity $activity) {
         return $activity->get_html5present();
     }
 
+    /**
+     * Query the db. Store results in the table object for use by build_table.
+     *
+     * @param int $pagesize size of page for paginated displayed table.
+     * @param bool $useinitialsbar do you want to use the initials bar. Bar
+     * will only be used if there is a fullname column defined for the table.
+     *
+     * @throws \dml_exception
+     */
     public function query_db($pagesize, $useinitialsbar=true) {
 
         $total = audit_manager::count_audit_activities();

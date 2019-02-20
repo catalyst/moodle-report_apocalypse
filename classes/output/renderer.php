@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die;
 
 use plugin_renderer_base;
 use report_apocalypse\apocalypse_datetime;
+use report_apocalypse\audit_manager;
 
 /**
  * Renderer class for audit table.
@@ -36,8 +37,8 @@ use report_apocalypse\apocalypse_datetime;
 class renderer extends plugin_renderer_base {
 
     public function render_audit_table(audit_table $renderable) {
-//        $output = $this->render_description($renderable);
-        $output = $this->render_table($renderable);
+        $output = $this->render_description($renderable);
+        $output .= $this->render_table($renderable);
         return $output;
     }
 
@@ -66,7 +67,7 @@ class renderer extends plugin_renderer_base {
                 echo $this->heading(get_string('apocalypseishere', 'report_apocalypse'));
             }
 
-            echo get_string('apocalypselastaudit', 'report_apocalypse', userdate($audit->get_lastaudit()->rundatetime));
+            echo get_string('apocalypselastaudit', 'report_apocalypse', userdate(audit_manager::get_last_audit()->rundatetime));
 
             echo $this->box_start();
             echo get_string('description', 'report_apocalypse');

@@ -136,6 +136,17 @@ class audit_manager implements audit_interface {
     }
 
     /**
+     * Get the details of the last time a flash audit was run.
+     */
+    public static function get_last_audit() {
+        global $DB;
+
+        $sql = 'SELECT * FROM {report_apocalypse_audits}
+                WHERE rundatetime = (SELECT MAX(rundatetime) FROM {report_apocalypse_audits})';
+        return $DB->get_record_sql($sql);
+    }
+
+    /**
      * Iterate over a moodle_recordset and insert values into 'report_apocalypse' table.
      *
      * @param \moodle_recordset $record A moodle_recordset instance to iterate over
