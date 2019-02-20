@@ -24,6 +24,7 @@
 namespace report_apocalypse\task;
 
 use \core\task\scheduled_task;
+use report_apocalypse\audit_manager;
 use report_apocalypse\flash_audit;
 
 /**
@@ -48,9 +49,7 @@ class scheduled_flash_audit extends scheduled_task {
      */
     public function execute() {
 
-        $audit = new flash_audit();
-
-        $audit->run()->handle_results();
+        audit_manager::run_audit();
 
     }
 }

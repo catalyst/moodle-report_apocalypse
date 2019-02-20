@@ -44,7 +44,6 @@ class table extends flexible_table {
     public function __construct(string $uniqueid) {
 
         parent::__construct($uniqueid);
-        $this->show_download_buttons_at(array(TABLE_P_BOTTOM));
         $this->set_columns_and_headings();
 
     }
@@ -55,14 +54,7 @@ class table extends flexible_table {
      * @throws \coding_exception
      */
     public function set_columns_and_headings() {
-        $this->define_columns(array('category', 'coursefullname', 'component', 'name', 'html5'));
-        $this->define_headers(array(
-            get_string('category'),
-            get_string("course"),
-            get_string('activitytype', 'report_apocalypse'),
-            get_string("activity"),
-            get_string('dualmode', 'report_apocalypse')
-        ));
+
     }
 
     /**

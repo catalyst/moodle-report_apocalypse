@@ -39,56 +39,18 @@ admin_externalpage_setup('reportapocalypse', '', null, '',
     array('pagelayout' => 'report'));
 
 $title = get_string('pluginname', 'report_apocalypse');
-
+$url = new moodle_url("/report/apocalypse/index.php");
+$PAGE->set_url($url);
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
-$audit = new flash_audit();
-$table = new table('report_apocalypse');
+$output = $PAGE->get_renderer('report_apocalypse');
 
-$exportfilename = "flash-apocalypse-report";
-
-if (!$table->is_downloading($download, $exportfilename)) {
-    echo $OUTPUT->header();
-    $imageurl = $CFG->wwwroot .'/report/apocalypse/pix/catalyst-logo.svg'; // Not using image_url for old site support.
-    echo '<span class="catalyst-logo">
-          <a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse">
-          <img src="' . $imageurl . '" width="181"></a></span>';
-
-    if (apocalypse_datetime::get_days_remaining() > 0) {
-        echo $OUTPUT->heading(get_string('apocalypseinxdays', 'report_apocalypse', apocalypse_datetime::get_days_remaining()));
-    } else {
-        echo $OUTPUT->heading(get_string('apocalypseishere', 'report_apocalypse'));
-    }
-
-    echo get_string('apocalypselastaudit', 'report_apocalypse', userdate($audit->get_lastaudit()->rundatetime));
-
-    echo $OUTPUT->box_start();
-    echo get_string('description', 'report_apocalypse');
-    echo $OUTPUT->box_end();
-}
-
-$table->define_baseurl($PAGE->url);
-
-$table->sortable(true);
-$table->set_attribute('class', 'generaltable generalbox');
-$table->setup();
-
-$limitfrom = 0;
-$limitnum = 0;
+echo $OUTPUT->header();
+$renderable = new \report_apocalypse\output\audit_table('report_apocalypse', $url, $page, $perpage, $download);
+echo $output->render($renderable);
 
 if (!$download) {
-    $table->pagesize($perpage, $audit->count_records());
-    $limitfrom = $table->get_page_start();
-    $limitnum = $table->get_page_size();
-}
-
-$table->add_rows($audit->get_limited_results($limitfrom, $limitnum));
-
-// Display the report.
-$table->finish_output();
-
-if (!$download) {
-    echo $OUTPUT->footer();
+    echo $output->footer();
 }

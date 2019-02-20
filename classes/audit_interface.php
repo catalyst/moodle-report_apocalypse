@@ -26,18 +26,16 @@ namespace report_apocalypse;
 
 interface audit_interface {
 
-    public function __construct();
-
     /**
-     * Run the audit
+     * Run the audit.
      *
      * @return this    for chaining methods
      */
-    public function run();
+    public static function run_audit();
 
     /**
-     * Store the audit results in the database
+     * Get the results of the most recent audit.
      */
-    public function handle_results();
+    public static function get_audit_results();
 
 }
