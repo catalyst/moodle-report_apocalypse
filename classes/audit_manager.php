@@ -267,8 +267,7 @@ class audit_manager {
         global $DB;
 
         $record = new stdClass();
-        $date = new DateTime();
-        $record->rundatetime = $date->getTimestamp();
+        $record->rundatetime = time();
         $record->countflashactivities = $count;
         $DB->insert_record('report_apocalypse_audits', $record, false);
 
