@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package     type_plugin
+ * @package     report_apocalypse
  * @author      Tom Dickman <tomdickman@catalyst-au.net>
  * @copyright   2019 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,6 +29,12 @@ use moodle_url;
 use html_writer;
 use stdClass;
 
+/**
+ * An class for building object representations of activities identified by audit.
+ * Contains formatting methods to produce html output for renderer from database records.
+ *
+ * @package report_apocalypse
+ */
 class audit_activity {
 
     /**
@@ -97,42 +103,42 @@ class audit_activity {
     }
 
     /**
-     * @return mixed
+     * @return string The category name.
      */
     public function get_courseurl() {
         return $this->courseurl;
     }
 
     /**
-     * @return mixed
+     * @return string The full name of the course.
      */
     public function get_coursefullname() {
         return $this->coursefullname;
     }
 
     /**
-     * @return mixed
+     * @return string The type of resource/activity.
      */
     public function get_type() {
         return $this->type;
     }
 
     /**
-     * @return mixed
+     * @return A string representation of the activity URL.
      */
     public function get_activityurl() {
         return $this->activityurl;
     }
 
     /**
-     * @return mixed
+     * @return The name of the activity.
      */
     public function get_activityname() {
         return $this->activityname;
     }
 
     /**
-     * @return mixed
+     * @return int Representation of a boolean 1 if contains html5 content, 0 otherwise.
      */
     public function get_html5present() {
         return $this->html5present;

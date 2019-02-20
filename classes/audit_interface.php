@@ -23,13 +23,15 @@
 
 namespace report_apocalypse;
 
-
+/**
+ * An interface for building auditing tools/reports.
+ *
+ * @package report_apocalypse
+ */
 interface audit_interface {
 
     /**
      * Run the audit.
-     *
-     * @return this    for chaining methods
      */
     public static function run_audit();
 

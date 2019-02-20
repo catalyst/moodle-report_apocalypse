@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package     type_plugin
+ * @package     report_apocalypse
  * @author      Tom Dickman <tomdickman@catalyst-au.net>
  * @copyright   2019 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -39,6 +39,7 @@ class renderer extends plugin_renderer_base {
     public function render_audit_table(audit_table $renderable) {
         $output = $this->render_description($renderable);
         $output .= $this->render_table($renderable);
+        $output .= $this->render_footer($renderable);
         return $output;
     }
 
@@ -48,7 +49,7 @@ class renderer extends plugin_renderer_base {
      * @throws \coding_exception
      */
     public function render_description(audit_table $renderable) {
-        global $CFG, $OUTPUT;
+        global $CFG;
 
         ob_start();
         if (!$renderable->download) {
@@ -94,5 +95,17 @@ class renderer extends plugin_renderer_base {
         ob_end_clean();
 
         return $output;
+    }
+
+    public function render_footer(audit_table $renderable) {
+
+        if (!$renderable->download) {
+            ob_start();
+            echo $this->footer();
+            $output = ob_get_contents();
+            ob_end_clean();
+
+            return $output;
+        }
     }
 }

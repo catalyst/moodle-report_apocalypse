@@ -28,8 +28,6 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/tablelib.php');
 require_once($CFG->dirroot . '/report/apocalypse/locallib.php');
 
-use report_apocalypse\{apocalypse_datetime, flash_audit, table};
-
 $page = optional_param('page', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_RAW);
 $perpage = optional_param('perpage', 50, PARAM_INT);
@@ -46,10 +44,5 @@ $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
 $output = $PAGE->get_renderer('report_apocalypse');
-
 $renderable = new \report_apocalypse\output\audit_table('report_apocalypse', $url, $page, $perpage, $download);
 echo $output->render($renderable);
-
-if (!$download) {
-    echo $output->footer();
-}

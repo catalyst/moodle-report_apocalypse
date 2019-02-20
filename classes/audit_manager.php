@@ -29,6 +29,11 @@ use stdClass;
 use moodle_url;
 use DateTime;
 
+/**
+ * Manager class for running audits and instantiating audit_activities.
+ *
+ * @package report_apocalypse
+ */
 class audit_manager implements audit_interface {
 
     /**
@@ -88,11 +93,11 @@ class audit_manager implements audit_interface {
     }
 
     /**
-     * Helper method to convert db records to workflow objects.
+     * Helper method to convert db records to audit_activity objects.
      *
-     * @param array $records of workflows from db.
+     * @param \moodle_recordset $records iterative containing mixed fieldset objects.
      *
-     * @return array of worklfow objects.
+     * @return array of audit_activity objects.
      * @throws \moodle_exception
      */
     public static function get_instances(\moodle_recordset $records) {
@@ -150,9 +155,9 @@ class audit_manager implements audit_interface {
     }
 
     /**
-     * Iterate over a moodle_recordset and insert values into 'report_apocalypse' table.
+     * Iterate over a \moodle_recordset and insert values into 'report_apocalypse' table.
      *
-     * @param \moodle_recordset $record A moodle_recordset instance to iterate over
+     * @param mixed $record a fieldset object containing a record
      *
      * @throws \dml_exception
      * @throws \moodle_exception
@@ -168,7 +173,7 @@ class audit_manager implements audit_interface {
     /**
      * A helper method to convert database query result for use in audit_activity object instances.
      *
-     * @param stdClass $record from a moodle_recordset
+     * @param mixed $record a fieldset object containing a record
      *
      * @return \report_apocalypse\audit_activity
      * @throws \moodle_exception
@@ -217,6 +222,8 @@ class audit_manager implements audit_interface {
 
 
     /**
+     * Get a course url representation from a db record.
+     *
      * @param mixed $record a fieldset object containing a record
      *
      * @return string  Resulting URL
@@ -230,6 +237,8 @@ class audit_manager implements audit_interface {
     }
 
     /**
+     * Get an activity url representation from a db record.
+     *
      * @param string $type The type of the activity
      * @param mixed $record a fieldset object containing a record
      *

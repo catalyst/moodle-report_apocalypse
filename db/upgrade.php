@@ -27,7 +27,7 @@ function xmldb_report_apocalypse_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2019011401) {
+    if ($oldversion < 2019022001) {
 
         // Define table report_apocalypse to be created.
         $table = new xmldb_table('report_apocalypse');
@@ -67,7 +67,8 @@ function xmldb_report_apocalypse_upgrade($oldversion) {
         }
 
         // Apocalypse savepoint reached.
-        upgrade_plugin_savepoint(true, 2019011400, 'report', 'apocalypse');
+        upgrade_plugin_savepoint(true, 2019022001, 'report', 'apocalypse');
     }
     return true;
 }
+

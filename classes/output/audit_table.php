@@ -32,12 +32,14 @@ use moodle_url;
 use renderable;
 
 /**
- * Renderable class for manage rules page.
+ * Renderable class for index page of report_apocalypse plugin.
  *
- * @package    tool_trigger
- * @copyright  Matt Porritt <mattp@catalyst-au.net>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     report_apocalypse
+ * @author      Tom Dickman <tomdickman@catalyst-au.net>
+ * @copyright   2019 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 class audit_table extends table_sql implements renderable {
 
     protected $page;
@@ -83,7 +85,7 @@ class audit_table extends table_sql implements renderable {
     }
 
     /**
-     * Get content for category column
+     * Get content for category column.
      *
      * @param audit_activity $activity object
      *
@@ -94,7 +96,7 @@ class audit_table extends table_sql implements renderable {
     }
 
     /**
-     * Get content for courselink column
+     * Get content for courselink column.
      *
      * @param audit_activity $activity object
      *
@@ -106,7 +108,7 @@ class audit_table extends table_sql implements renderable {
     }
 
     /**
-     * Get content for type column
+     * Get content for type column.
      *
      * @param audit_activity $activity object
      *
@@ -117,7 +119,7 @@ class audit_table extends table_sql implements renderable {
     }
 
     /**
-     * Get content for activitylink column
+     * Get content for activitylink column.
      *
      * @param audit_activity $activity object
      *
@@ -129,7 +131,7 @@ class audit_table extends table_sql implements renderable {
     }
 
     /**
-     * Get content for html5present column
+     * Get content for html5present column.
      *
      * @param audit_activity $activity object
      *
@@ -165,5 +167,5 @@ class audit_table extends table_sql implements renderable {
 
     }
 
-
 }
+
