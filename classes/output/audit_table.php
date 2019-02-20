@@ -138,7 +138,7 @@ class audit_table extends table_sql implements renderable {
      * @return string html used to display the column field.
      */
     public function col_html5present(audit_activity $activity) {
-        return $activity->get_html5present();
+        return ($activity->get_html5present()) ? 'Yes' : 'No';
     }
 
     /**
