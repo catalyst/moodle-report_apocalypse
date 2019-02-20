@@ -26,7 +26,6 @@
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/tablelib.php');
-require_once($CFG->dirroot . '/report/apocalypse/locallib.php');
 
 $page = optional_param('page', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_RAW);
