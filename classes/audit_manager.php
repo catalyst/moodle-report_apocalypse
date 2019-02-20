@@ -34,7 +34,7 @@ use DateTime;
  *
  * @package report_apocalypse
  */
-class audit_manager implements audit_interface {
+class audit_manager {
 
     /**
      * Run a flash audit on the moodle site.
