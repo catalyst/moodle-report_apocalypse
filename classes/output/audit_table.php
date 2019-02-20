@@ -149,16 +149,12 @@ class audit_table extends table_sql implements renderable {
      * will only be used if there is a fullname column defined for the table.
      *
      * @throws \dml_exception
+     * @throws \moodle_exception
      */
     public function query_db($pagesize, $useinitialsbar=true) {
 
         $total = audit_manager::count_audit_activities();
         $this->pagesize($pagesize, $total);
-//        if (!$this->download) {
-//            $this->pagesize($perpage, $audit->count_records());
-//            $limitfrom = $this->get_page_start();
-//            $limitnum = $this->get_page_size();
-//        }
         $activities = audit_manager::get_audit_results_paginated($this->get_page_start(), $this->get_page_size());
         $this->rawdata = $activities;
         if ($useinitialsbar) {

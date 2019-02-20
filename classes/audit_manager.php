@@ -125,6 +125,7 @@ class audit_manager implements audit_interface {
      *
      * @param \moodle_recordset $recordset Records to store
      *
+     * @return bool true if successful, false if not.
      * @throws \Exception
      */
     public static function store_records($recordset) {
@@ -138,8 +139,9 @@ class audit_manager implements audit_interface {
             }
             $recordset->close();
             self::insert_audit_record($count);
+            return true;
         } else {
-            // TODO Log an error message
+            return false;
         }
     }
 
@@ -203,7 +205,7 @@ class audit_manager implements audit_interface {
     public static function get_category_from_record($record) {
         global $DB;
 
-        // Get the course category names and their ids
+        // Get the course category names and their ids.
         $coursecategorynames = $DB->get_records_menu('course_categories', array(), '', 'id, name');
         $category = '';
         if (!empty($record->category)) {
@@ -319,7 +321,8 @@ class audit_manager implements audit_interface {
             $likes[] = $DB->sql_like('f.filename', '?', false);
         }
 
-        $sql = "SELECT main.contextid, main.id, main.coursefullname, cat.path as category, main.name, main.instanceid, main.component, dualsupport.html5
+        $sql = "SELECT main.contextid, main.id, main.coursefullname, cat.path
+          as category, main.name, main.instanceid, main.component, dualsupport.html5
           FROM (";
 
         $firstmod = true;
