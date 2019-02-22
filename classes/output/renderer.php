@@ -46,36 +46,35 @@ class renderer extends plugin_renderer_base {
     /**
      * Render the plugin description.
      *
+     * @return string HTML for display
      * @throws \coding_exception
      */
     public function render_description(audit_table $renderable) {
         global $CFG;
 
-        ob_start();
+        $output = '';
         if (!$renderable->download) {
-            echo $this->header();
+            $output .= $this->header() . "\n";
             $imageurl = $CFG->wwwroot .'/report/apocalypse/pix/catalyst-logo.svg'; // Not using image_url for old site support.
-            echo '<span class="catalyst-logo">';
-            echo '  <a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse">';
-            echo '    <img src="' . $imageurl . '" width="181">';
-            echo '  </a>';
-            echo '</span>';
+            $output .= '<span class="catalyst-logo">' . "\n";
+            $output .= '  <a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse">' . "\n";
+            $output .= '    <img src="' . $imageurl . '" width="181">'  . "\n";
+            $output .= '  </a>'  . "\n";
+            $output .= '</span>'  . "\n";
 
             if (apocalypse_datetime::get_days_remaining() > 0) {
-                echo $this->heading(get_string('apocalypseinxdays', 'report_apocalypse',
-                    apocalypse_datetime::get_days_remaining()));
+                $output .= $this->heading(get_string('apocalypseinxdays', 'report_apocalypse',
+                    apocalypse_datetime::get_days_remaining()))  . "\n";
             } else {
-                echo $this->heading(get_string('apocalypseishere', 'report_apocalypse'));
+                $output .= $this->heading(get_string('apocalypseishere', 'report_apocalypse'))  . "\n";
             }
 
-            echo get_string('apocalypselastaudit', 'report_apocalypse', userdate(audit_manager::get_last_audit()->rundatetime));
+            $output .= get_string('apocalypselastaudit', 'report_apocalypse', userdate(audit_manager::get_last_audit()->rundatetime))  . "\n";
 
-            echo $this->box_start();
-            echo get_string('description', 'report_apocalypse');
-            echo $this->box_end();
+            $output .= $this->box_start();
+            $output .= get_string('description', 'report_apocalypse');
+            $output .= $this->box_end();
         }
-        $output = ob_get_contents();
-        ob_end_clean();
 
         return $output;
     }
@@ -85,7 +84,7 @@ class renderer extends plugin_renderer_base {
      *
      * @param \report_apocalypse\output\audit_table $renderable
      *
-     * @return string
+     * @return string HTML for display
      */
     public function render_table(audit_table $renderable) {
 
@@ -97,15 +96,15 @@ class renderer extends plugin_renderer_base {
         return $output;
     }
 
+    /**
+     * @param \report_apocalypse\output\audit_table $renderable
+     *
+     * @return string HTML for display
+     */
     public function render_footer(audit_table $renderable) {
 
         if (!$renderable->download) {
-            ob_start();
-            echo $this->footer();
-            $output = ob_get_contents();
-            ob_end_clean();
-
-            return $output;
+            return $this->footer();
         }
     }
 }
