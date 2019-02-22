@@ -45,7 +45,7 @@ class audit_manager {
     public static function run_audit() {
         global $DB;
 
-        $modules = self::get_all_modules();
+        $modules = $DB->get_records_menu('modules', array(), '', 'id, name');
         list($sql, $params) = self::build_sql_and_parameters_for_audit($modules);
         $recordset = $DB->get_recordset_sql($sql, $params);
 
@@ -131,14 +131,11 @@ class audit_manager {
     public static function store_records($recordset) {
 
         if ($recordset->valid()) {
-            $count = 0;
 
             foreach ($recordset as $record) {
                 self::insert_audit_activity($record);
-                $count++;
             }
             $recordset->close();
-            self::insert_audit_record($count);
             return true;
         } else {
             return false;
@@ -147,13 +144,15 @@ class audit_manager {
 
     /**
      * Get the details of the last time a flash audit was run.
+     *
+     * @return int Unix Epoch representation of datetime
+     * @throws \dml_exception
      */
-    public static function get_last_audit() {
+    public static function get_datetime_epoch_last_audit() {
         global $DB;
 
-        $sql = 'SELECT * FROM {report_apocalypse_audits}
-                WHERE rundatetime = (SELECT MAX(rundatetime) FROM {report_apocalypse_audits})';
-        return $DB->get_record_sql($sql);
+        $task = $DB->get_record('task_scheduled', array('component' => 'report_apocalypse'));
+        return $task->lastruntime;
     }
 
     /**
@@ -254,50 +253,6 @@ class audit_manager {
             $activityurl = new moodle_url("/mod/$type/view.php", array('id' => $record->instanceid));
         }
         return $activityurl->out();
-    }
-
-    /**
-     * Insert audit date/time and a count of flash activities detected into 'report_apocalypse_audit' table.
-     *
-     * @param int $count the count of activities to store in record
-     *
-     * @throws \Exception
-     */
-    public static function insert_audit_record(int $count) {
-        global $DB;
-
-        $record = new stdClass();
-        $record->rundatetime = time();
-        $record->countflashactivities = $count;
-        $DB->insert_record('report_apocalypse_audits', $record, false);
-
-    }
-
-    /**
-     * Count how many affected activities were detected during last audit run.
-     *
-     * @return int The total number of audit activities in database.
-     * @throws \dml_exception
-     */
-    public static function count_audit_activities() {
-        global $DB;
-
-        $modules = self::get_all_modules();
-        list($sql, $params) = self::build_sql_and_parameters_for_audit($modules);
-        return $DB->count_records_sql("SELECT count(*) FROM ($sql) as allr", $params);
-    }
-
-    /**
-     * Get all modules as an associative array.
-     *
-     * @return array associative array of limited module information, id->name
-     *
-     * @throws \dml_exception
-     */
-    public static function get_all_modules() {
-        global $DB;
-
-        return $DB->get_records_menu('modules', array(), '', 'id, name');
     }
 
     /**

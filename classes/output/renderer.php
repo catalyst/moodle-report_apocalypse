@@ -69,7 +69,8 @@ class renderer extends plugin_renderer_base {
                 $output .= $this->heading(get_string('apocalypseishere', 'report_apocalypse'))  . "\n";
             }
 
-            $output .= get_string('apocalypselastaudit', 'report_apocalypse', userdate(audit_manager::get_last_audit()->rundatetime))  . "\n";
+            $output .= get_string('apocalypselastaudit', 'report_apocalypse',
+                    userdate(audit_manager::get_datetime_epoch_last_audit()))  . "\n";
 
             $output .= $this->box_start();
             $output .= get_string('description', 'report_apocalypse');

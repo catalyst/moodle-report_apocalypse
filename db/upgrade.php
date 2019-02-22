@@ -50,22 +50,6 @@ function xmldb_report_apocalypse_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        // Define table report_apocalypse_audits to be created.
-        $table = new xmldb_table('report_apocalypse_audits');
-
-        // Adding fields to table report_apocalypse_audits.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('rundatetime', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('countflashactivities', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-
-        // Adding keys to table report_apocalypse_audits.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-
-        // Conditionally launch create table for report_apocalypse_audits.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
         // Apocalypse savepoint reached.
         upgrade_plugin_savepoint(true, 2019022001, 'report', 'apocalypse');
     }

@@ -152,8 +152,9 @@ class audit_table extends table_sql implements renderable {
      * @throws \moodle_exception
      */
     public function query_db($pagesize, $useinitialsbar=true) {
+        global $DB;
 
-        $total = audit_manager::count_audit_activities();
+        $total = $DB->count_records('report_apocalypse');
         $this->pagesize($pagesize, $total);
         $activities = audit_manager::get_audit_results_paginated($this->get_page_start(), $this->get_page_size());
         $this->rawdata = $activities;
