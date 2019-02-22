@@ -7,13 +7,14 @@
     <TABLE NAME="report_apocalypse" COMMENT="Report outlining the presence of Flash components within activities">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="coursefullname" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="category" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="coursefullname" TYPE="char" LENGTH="254" NOTNULL="true" SEQUENCE="false" COMMENT="Full name of course, limited to 254 chars as per mdl_course table"/>
-        <FIELD NAME="courseurl" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="An HTML link to the course in question"/>
-        <FIELD NAME="type" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="The type of component or legacy if pre-Moodle 2.0"/>
-        <FIELD NAME="activityname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The name of the activity"/>
-        <FIELD NAME="activityurl" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="An HTML link to the activity in question"/>
-        <FIELD NAME="html5present" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 if no html5 detected for activity, 1 if html5 detected"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="component" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="html5" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

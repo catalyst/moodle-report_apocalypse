@@ -61,18 +61,6 @@ class audit_manager {
     }
 
     /**
-     * Get all audit results as a moodle_recordset.
-     *
-     * @return \moodle_recordset A moodle_recordset instance
-     * @throws \dml_exception
-     */
-    public static function get_audit_results() {
-        global $DB;
-
-        return $DB->get_recordset('report_apocalypse');
-    }
-
-    /**
      * Get a range of results as a moodle_recordset based on passed in limits.
      *
      * @param int $limitfrom return a subset of records, starting at this point (optional).
@@ -129,12 +117,10 @@ class audit_manager {
      * @throws \Exception
      */
     public static function store_records($recordset) {
+        global $DB;
 
         if ($recordset->valid()) {
-
-            foreach ($recordset as $record) {
-                self::insert_audit_activity($record);
-            }
+            $DB->insert_records('report_apocalypse', $recordset);
             $recordset->close();
             return true;
         } else {
@@ -153,106 +139,6 @@ class audit_manager {
 
         $task = $DB->get_record('task_scheduled', array('component' => 'report_apocalypse'));
         return $task->lastruntime;
-    }
-
-    /**
-     * Iterate over a \moodle_recordset and insert values into 'report_apocalypse' table.
-     *
-     * @param mixed $record a fieldset object containing a record
-     *
-     * @throws \dml_exception
-     * @throws \moodle_exception
-     */
-    public static function insert_audit_activity($record) {
-        global $DB;
-
-        $activity = self::build_audit_activity_from_record($record);
-        $DB->insert_record('report_apocalypse', $activity->get_activity(), false);
-
-    }
-
-    /**
-     * A helper method to convert database query result for use in audit_activity object instances.
-     *
-     * @param mixed $record a fieldset object containing a record
-     *
-     * @return \report_apocalypse\audit_activity
-     * @throws \moodle_exception
-     */
-    public static function build_audit_activity_from_record($record) {
-
-        $activity = new stdClass();
-        $activity->category = self::get_category_from_record($record);
-        $activity->courseurl = self::get_course_url_from_record($record);
-        $activity->coursefullname = $record->coursefullname;
-        $activity->type = str_replace('mod_', '', $record->component);
-        $activity->activityurl = self::get_activity_url_from_record($activity->type, $record);
-        $activity->activityname = $record->name;
-        $activity->html5present = empty($record->html5) ? 0 : 1;
-
-        return new audit_activity($activity);
-    }
-
-    /**
-     * Get category from record
-     *
-     * @param mixed $record a fieldset object containing a record
-     *
-     * @return string  The category name or empty string if none found
-     * @throws \dml_exception
-     */
-    public static function get_category_from_record($record) {
-        global $DB;
-
-        // Get the course category names and their ids.
-        $coursecategorynames = $DB->get_records_menu('course_categories', array(), '', 'id, name');
-        $category = '';
-        if (!empty($record->category)) {
-            $categories = explode('/', $record->category);
-            foreach ($categories as $c) {
-                if (!empty($c) && !empty($coursecategorynames[$c])) {
-                    if (!empty($category)) {
-                        $category .= " / ";
-                    }
-                    $category .= $coursecategorynames[$c];
-                }
-            }
-        }
-        return $category;
-    }
-
-
-    /**
-     * Get a course url representation from a db record.
-     *
-     * @param mixed $record a fieldset object containing a record
-     *
-     * @return string  Resulting URL
-     * @throws \moodle_exception
-     */
-    public static function get_course_url_from_record($record) {
-
-        $courseurl = new moodle_url('/course/view.php', array('id' => $record->id));
-        return $courseurl->out();
-
-    }
-
-    /**
-     * Get an activity url representation from a db record.
-     *
-     * @param string $type The type of the activity
-     * @param mixed $record a fieldset object containing a record
-     *
-     * @return string Resulting URL
-     * @throws \moodle_exception
-     */
-    public static function get_activity_url_from_record($type = '', $record) {
-        if ($type == 'legacy') {
-            $activityurl = new moodle_url("/files/index.php", array('contextid' => $record->contextid));
-        } else {
-            $activityurl = new moodle_url("/mod/$type/view.php", array('id' => $record->instanceid));
-        }
-        return $activityurl->out();
     }
 
     /**
@@ -275,7 +161,7 @@ class audit_manager {
             $likes[] = $DB->sql_like('f.filename', '?', false);
         }
 
-        $sql = "SELECT main.contextid, main.id, main.coursefullname, cat.path
+        $sql = "SELECT main.contextid, main.id AS courseid, main.coursefullname, cat.path
           as category, main.name, main.instanceid, main.component, dualsupport.html5
           FROM (";
 

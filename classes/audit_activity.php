@@ -86,13 +86,76 @@ class audit_activity {
      */
     public function __construct(stdClass $record) {
         $this->activity = $record;
-        $this->category = $record->category;
-        $this->courseurl = $record->courseurl;
+        $this->category = $this->get_category_from_record($record);
+        $this->courseurl = $this->get_course_url_from_record($record);
         $this->coursefullname = $record->coursefullname;
-        $this->type = $record->type;
-        $this->activityurl = $record->activityurl;
-        $this->activityname = $record->activityname;
-        $this->html5present = $record->html5present;
+        $this->type = str_replace('mod_', '', $record->component);
+        $this->activityurl = $this->get_activity_url_from_record($this->type, $record);
+        $this->activityname = $record->name;
+        $this->html5present = empty($record->html5) ? 0 : 1;
+    }
+
+    /**
+     * Get category from record
+     *
+     * @param mixed $record a fieldset object containing a record
+     *
+     * @return string  The category name or empty string if none found
+     * @throws \dml_exception
+     */
+    public function get_category_from_record($record) {
+        global $DB;
+
+        // Get the course category names and their ids.
+        $coursecategorynames = $DB->get_records_menu('course_categories', array(), '', 'id, name');
+        $category = '';
+        if (!empty($record->category)) {
+            $categories = explode('/', $record->category);
+            foreach ($categories as $c) {
+                if (!empty($c) && !empty($coursecategorynames[$c])) {
+                    if (!empty($category)) {
+                        $category .= " / ";
+                    }
+                    $category .= $coursecategorynames[$c];
+                }
+            }
+        }
+        return $category;
+    }
+
+
+    /**
+     * Get a course url representation from a db record.
+     *
+     * @param mixed $record a fieldset object containing a record
+     *
+     * @return string  Resulting URL
+     * @throws \moodle_exception
+     */
+    public function get_course_url_from_record($record) {
+
+        $courseurl = new moodle_url('/course/view.php', array('id' => $record->courseid));
+        return $courseurl->out();
+
+    }
+
+
+    /**
+     * Get an activity url representation from a db record.
+     *
+     * @param string $type The type of the activity
+     * @param mixed $record a fieldset object containing a record
+     *
+     * @return string Resulting URL
+     * @throws \moodle_exception
+     */
+    public static function get_activity_url_from_record($type = '', $record) {
+        if ($type == 'legacy') {
+            $activityurl = new moodle_url("/files/index.php", array('contextid' => $record->contextid));
+        } else {
+            $activityurl = new moodle_url("/mod/$type/view.php", array('id' => $record->instanceid));
+        }
+        return $activityurl->out();
     }
 
     /**
