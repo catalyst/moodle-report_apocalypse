@@ -42,12 +42,6 @@ use renderable;
 
 class audit_table extends table_sql implements renderable {
 
-    protected $page;
-
-    protected $perpage;
-
-    protected $systemcontext;
-
     /**
      * audit_table constructor.
      *
@@ -60,7 +54,7 @@ class audit_table extends table_sql implements renderable {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function __construct(string $uniqueid, moodle_url $url, int $page=0, int $perpage=50, $download='') {
+    public function __construct(string $uniqueid, moodle_url $url, int $currpage=0, int $pagesize=50, $download='') {
         parent::__construct($uniqueid);
 
         $this->set_attribute('id', 'report_apocalypse_table');
@@ -77,8 +71,8 @@ class audit_table extends table_sql implements renderable {
         $systemcontext = \context_system::instance();
         $this->context = $systemcontext;
         $this->baseurl = $url;
-        $this->page = $page;
-        $this->perpage = $perpage;
+        $this->currpage = $currpage;
+        $this->pagesize = $pagesize;
         $this->is_downloading($download, 'flash-apocalypse-report');
         $this->sortable(true);
 
