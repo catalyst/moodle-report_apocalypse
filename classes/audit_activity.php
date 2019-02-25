@@ -40,42 +40,42 @@ class audit_activity {
     /**
      * @var stdClass The activity object from database.
      */
-    protected $activity;
+    public $activity;
 
     /**
      * @var string The category name.
      */
-    protected $category;
+    public $category;
 
     /**
      * @var string A string representation of the course URL.
      */
-    protected $courseurl;
+    public $courseurl;
 
     /**
      * @var string The full name of the course.
      */
-    protected $coursefullname;
+    public $coursefullname;
 
     /**
      * @var string The type of resource/activity.
      */
-    protected $type;
+    public $type;
 
     /**
      * @var string A string representation of the activity URL.
      */
-    protected $activityurl;
+    public $activityurl;
 
     /**
      * @var string The name of the activity.
      */
-    protected $activityname;
+    public $activityname;
 
     /**
      * @var int Representation of a boolean 0 for false, 1 for true.
      */
-    protected $html5present;
+    public $html5present;
 
     /**
      * audit_activity constructor.
@@ -87,7 +87,8 @@ class audit_activity {
     public function __construct(stdClass $record) {
         $this->activity = $record;
         $this->category = $this->get_category_from_record($record);
-        $this->courseurl = $this->get_course_url_from_record($record);
+        $courseurl = new moodle_url('/course/view.php', array('id' => $record->courseid));
+        $this->courseurl = $courseurl->out();
         $this->coursefullname = $record->coursefullname;
         $this->type = str_replace('mod_', '', $record->component);
         $this->activityurl = $this->get_activity_url_from_record($this->type, $record);
@@ -123,23 +124,6 @@ class audit_activity {
         return $category;
     }
 
-
-    /**
-     * Get a course url representation from a db record.
-     *
-     * @param mixed $record a fieldset object containing a record
-     *
-     * @return string  Resulting URL
-     * @throws \moodle_exception
-     */
-    public function get_course_url_from_record($record) {
-
-        $courseurl = new moodle_url('/course/view.php', array('id' => $record->courseid));
-        return $courseurl->out();
-
-    }
-
-
     /**
      * Get an activity url representation from a db record.
      *
@@ -157,82 +141,5 @@ class audit_activity {
         }
         return $activityurl->out();
     }
-
-    /**
-     * @return mixed
-     */
-    public function get_category() {
-        return $this->category;
-    }
-
-    /**
-     * @return string The category name.
-     */
-    public function get_courseurl() {
-        return $this->courseurl;
-    }
-
-    /**
-     * @return string The full name of the course.
-     */
-    public function get_coursefullname() {
-        return $this->coursefullname;
-    }
-
-    /**
-     * @return string The type of resource/activity.
-     */
-    public function get_type() {
-        return $this->type;
-    }
-
-    /**
-     * @return A string representation of the activity URL.
-     */
-    public function get_activityurl() {
-        return $this->activityurl;
-    }
-
-    /**
-     * @return The name of the activity.
-     */
-    public function get_activityname() {
-        return $this->activityname;
-    }
-
-    /**
-     * @return int Representation of a boolean 1 if contains html5 content, 0 otherwise.
-     */
-    public function get_html5present() {
-        return $this->html5present;
-    }
-
-    /**
-     * Get a html course link to display for the audit activity.
-     *
-     * @return string HTML fragment
-     * @throws \moodle_exception
-     */
-    public function get_courselink() {
-        return html_writer::link(new moodle_url($this->courseurl), $this->coursefullname);
-    }
-
-    /**
-     * Get a html activity link to display for audit activity.
-     *
-     * @return string HTML fragment
-     * @throws \moodle_exception
-     */
-    public function get_activitylink() {
-        return html_writer::link(new moodle_url($this->activityurl), $this->activityname);
-    }
-
-    /**
-     * Get the standard class representation of this instance.
-     *
-     * @return \stdClass
-     */
-    public function get_activity() {
-        return $this->activity;
-    }
 }
+

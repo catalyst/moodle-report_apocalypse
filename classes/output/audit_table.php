@@ -92,7 +92,7 @@ class audit_table extends table_sql implements renderable {
      * @return string html used to display the column field.
      */
     public function col_category($activity) {
-        return $activity->get_category();
+        return $activity->category;
     }
 
     /**
@@ -104,7 +104,7 @@ class audit_table extends table_sql implements renderable {
      * @throws \moodle_exception
      */
     public function col_courselink($activity) {
-        return $activity->get_courselink();
+        return html_writer::link(new moodle_url($activity->courseurl), $activity->coursefullname);
     }
 
     /**
@@ -115,7 +115,7 @@ class audit_table extends table_sql implements renderable {
      * @return string html used to display the column field.
      */
     public function col_type($activity) {
-        return $activity->get_type();
+        return $activity->type;
     }
 
     /**
@@ -127,7 +127,7 @@ class audit_table extends table_sql implements renderable {
      * @throws \moodle_exception
      */
     public function col_activitylink($activity) {
-        return $activity->get_activitylink();
+        return html_writer::link(new moodle_url($activity->activityurl), $activity->activityname);
     }
 
     /**
@@ -138,7 +138,7 @@ class audit_table extends table_sql implements renderable {
      * @return string html used to display the column field.
      */
     public function col_html5present(audit_activity $activity) {
-        return ($activity->get_html5present()) ? 'Yes' : 'No';
+        return ($activity->html5present) ? 'Yes' : 'No';
     }
 
     /**

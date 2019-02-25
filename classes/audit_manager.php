@@ -25,10 +25,6 @@ namespace report_apocalypse;
 
 defined('MOODLE_INTERNAL') || die;
 
-use stdClass;
-use moodle_url;
-use DateTime;
-
 /**
  * Manager class for running audits and instantiating audit_activities.
  *
