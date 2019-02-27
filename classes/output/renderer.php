@@ -50,7 +50,11 @@ class renderer extends plugin_renderer_base {
      * @throws \coding_exception
      */
     public function render_description(audit_table $renderable) {
-        global $CFG;
+        global $CFG, $DB;
+
+        // This is an abitrary date based on the statements from browser developers relating to "mid 2019".
+        $datetimeofapocalypse = strtotime("2019-8-31 0:00");
+        $daysremaining = floor(($datetimeofapocalypse - time()) / 86400);
 
         $output = '';
         if (!$renderable->download) {
@@ -62,15 +66,15 @@ class renderer extends plugin_renderer_base {
             $output .= '  </a>'  . "\n";
             $output .= '</span>'  . "\n";
 
-            if (apocalypse_datetime::get_days_remaining() > 0) {
+            if ($daysremaining > 0) {
                 $output .= $this->heading(get_string('apocalypseinxdays', 'report_apocalypse',
-                    apocalypse_datetime::get_days_remaining()))  . "\n";
+                    $daysremaining))  . "\n";
             } else {
                 $output .= $this->heading(get_string('apocalypseishere', 'report_apocalypse'))  . "\n";
             }
 
             $output .= get_string('apocalypselastaudit', 'report_apocalypse',
-                    userdate(audit_manager::get_datetime_epoch_last_audit()))  . "\n";
+                    userdate($DB->get_field('task_scheduled', 'lastruntime', array('component' => 'report_apocalypse'))))  . "\n";
 
             $output .= $this->box_start();
             $output .= get_string('description', 'report_apocalypse');

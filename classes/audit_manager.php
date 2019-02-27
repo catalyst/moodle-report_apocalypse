@@ -116,18 +116,6 @@ class audit_manager {
     }
 
     /**
-     * Get the details of the last time a flash audit was run.
-     *
-     * @return int Unix Epoch representation of datetime
-     * @throws \dml_exception
-     */
-    public static function get_datetime_epoch_last_audit() {
-        global $DB;
-
-        return $DB->get_field('task_scheduled', 'lastruntime', array('component' => 'report_apocalypse'));;
-    }
-
-    /**
      * Build a list consisting of the SQL query string and an array of the parameters
      * required to conduct the audit.
      *
