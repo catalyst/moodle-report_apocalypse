@@ -124,8 +124,7 @@ class audit_manager {
     public static function get_datetime_epoch_last_audit() {
         global $DB;
 
-        $task = $DB->get_record('task_scheduled', array('component' => 'report_apocalypse'));
-        return $task->lastruntime;
+        return $DB->get_field('task_scheduled', 'lastruntime', array('component' => 'report_apocalypse'));;
     }
 
     /**
