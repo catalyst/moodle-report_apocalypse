@@ -54,6 +54,8 @@ class audit_manager {
         } catch (Exception $e) {
             $transaction->rollback($e);
         }
+
+        $recordset->close();
     }
 
     /**
@@ -72,6 +74,8 @@ class audit_manager {
         $recordset = $DB->get_recordset('report_apocalypse', null, '', '*', $limitfrom, $limitnum);
 
         $activities = self::get_instances($recordset);
+
+        $recordset->close();
 
         return $activities;
     }
@@ -117,7 +121,6 @@ class audit_manager {
 
         if ($recordset->valid()) {
             $DB->insert_records('report_apocalypse', $recordset);
-            $recordset->close();
             return true;
         } else {
             return false;
