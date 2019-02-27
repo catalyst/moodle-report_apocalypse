@@ -47,7 +47,7 @@ class audit_manager {
 
         $transaction = $DB->start_delegated_transaction();
         try {
-            self::delete_records();
+            $DB->delete_records('report_apocalypse');
             self::store_records($recordset);
 
             $transaction->allow_commit();
@@ -94,18 +94,6 @@ class audit_manager {
             $activities[] = new audit_activity($activity);
         }
         return $activities;
-    }
-
-    /**
-     * Delete previous audit results from database.
-     *
-     * @throws \dml_exception
-     */
-    public static function delete_records() {
-        global $DB;
-
-        $DB->delete_records('report_apocalypse');
-
     }
 
     /**
