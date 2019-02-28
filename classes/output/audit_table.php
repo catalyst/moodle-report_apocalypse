@@ -30,6 +30,7 @@ use report_apocalypse\audit_manager;
 use table_sql;
 use moodle_url;
 use renderable;
+use html_writer;
 
 /**
  * Renderable class for index page of report_apocalypse plugin.

@@ -89,9 +89,14 @@ class audit_manager {
      * @throws \moodle_exception
      */
     public static function get_instances(\moodle_recordset $records) {
+        global $DB;
+
+        // Get the course category names and their ids.
+        $coursecategorynames = $DB->get_records_menu('course_categories', array(), '', 'id, name');
+
         $activities = array();
         foreach ($records as $activity) {
-            $activities[] = new audit_activity($activity);
+            $activities[] = new audit_activity($activity, $coursecategorynames);
         }
         return $activities;
     }

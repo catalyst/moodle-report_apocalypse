@@ -84,9 +84,9 @@ class audit_activity {
      *
      * @throws \moodle_exception
      */
-    public function __construct(stdClass $record) {
+    public function __construct(stdClass $record, array $coursecategorynames) {
         $this->activity = $record;
-        $this->category = $this->get_category_from_record($record);
+        $this->category = $this->get_category_from_record($record, $coursecategorynames);
         $courseurl = new moodle_url('/course/view.php', array('id' => $record->courseid));
         $this->courseurl = $courseurl->out();
         $this->coursefullname = $record->coursefullname;
@@ -104,11 +104,8 @@ class audit_activity {
      * @return string  The category name or empty string if none found
      * @throws \dml_exception
      */
-    public function get_category_from_record($record) {
-        global $DB;
+    public function get_category_from_record($record, $coursecategorynames) {
 
-        // Get the course category names and their ids.
-        $coursecategorynames = $DB->get_records_menu('course_categories', array(), '', 'id, name');
         $category = '';
         if (!empty($record->category)) {
             $categories = explode('/', $record->category);

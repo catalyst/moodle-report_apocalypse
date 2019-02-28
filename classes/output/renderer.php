@@ -27,7 +27,6 @@ defined('MOODLE_INTERNAL') || die;
 
 use plugin_renderer_base;
 use report_apocalypse\apocalypse_datetime;
-use report_apocalypse\audit_manager;
 
 /**
  * Renderer class for audit table.
