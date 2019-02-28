@@ -15,18 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Settings for the apocalypse report
- *
- * @package    report_apocalypse
- * @author     Dan Marsden
- * @copyright  2018 Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     report_apocalypse
+ * @author      Tom Dickman <tomdickman@catalyst-au.net>
+ * @copyright   2019 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-$ADMIN->add('reports', new admin_externalpage('reportapocalypse',
-    get_string('pluginname', 'report_apocalypse'), "$CFG->wwwroot/report/apocalypse/index.php"));
-
-// No report settings.
-$settings = null;
+$tasks = [
+    [
+        'classname' => 'report_apocalypse\task\scheduled_flash_audit',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => '4',
+        'day' => '*',
+        'month' => '*',
+        'daysofweek' => '*',
+    ],
+];
