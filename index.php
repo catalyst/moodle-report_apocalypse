@@ -43,6 +43,6 @@ $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
 $output = $PAGE->get_renderer('report_apocalypse');
-$renderable = new \report_apocalypse\output\audit_table('report_apocalypse', $url, $page, $perpage, $download);
+$renderable = new \report_apocalypse\output\audit_table('report_apocalypse', $PAGE->url, $page, $perpage, $download);
 echo $output->render($renderable);
 

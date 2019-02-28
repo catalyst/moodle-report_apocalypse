@@ -55,27 +55,26 @@ class audit_table extends table_sql implements renderable {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function __construct(string $uniqueid, moodle_url $url, int $currpage=0, int $pagesize=50, $download='') {
+    public function __construct(string $uniqueid, $url, int $currpage=0, int $pagesize=50, $download='') {
         parent::__construct($uniqueid);
 
         $this->set_attribute('id', 'report_apocalypse_table');
         $this->set_attribute('class', 'generaltable generalbox');
         $this->show_download_buttons_at(array(TABLE_P_BOTTOM));
-        $this->define_columns(array('category', 'courselink', 'type', 'activitylink', 'html5present'));
+        $this->define_baseurl($url);
+        $this->define_columns(array('category', 'coursefullname', 'component', 'name', 'html5'));
         $this->define_headers(array(
             get_string('category'),
-            get_string("course"),
+            get_string('course'),
             get_string('activitytype', 'report_apocalypse'),
-            get_string("activity"),
+            get_string('activity'),
             get_string('dualmode', 'report_apocalypse')
         ));
-        $systemcontext = \context_system::instance();
-        $this->context = $systemcontext;
-        $this->baseurl = $url;
         $this->currpage = $currpage;
         $this->pagesize = $pagesize;
         $this->is_downloading($download, 'flash-apocalypse-report');
         $this->sortable(true);
+        $this->set_sql('*', "{report_apocalypse}", '1');
 
     }
 
@@ -87,7 +86,7 @@ class audit_table extends table_sql implements renderable {
      * @return string html used to display the column field.
      */
     public function col_category($activity) {
-        return $activity->category;
+        return $this->format_text($activity->category);
     }
 
     /**
@@ -98,8 +97,11 @@ class audit_table extends table_sql implements renderable {
      * @return string html used to display the column field.
      * @throws \moodle_exception
      */
-    public function col_courselink($activity) {
-        return html_writer::link(new moodle_url($activity->courseurl), $activity->coursefullname);
+    public function col_coursefullname($activity) {
+        if ($this->is_downloading()) {
+            return $this->format_text($activity->coursefullname);
+        }
+        return $this->format_text(html_writer::link(new moodle_url($activity->courseurl), $activity->coursefullname), FORMAT_HTML);
     }
 
     /**
@@ -109,8 +111,8 @@ class audit_table extends table_sql implements renderable {
      *
      * @return string html used to display the column field.
      */
-    public function col_type($activity) {
-        return $activity->type;
+    public function col_component($activity) {
+        return $this->format_text($activity->type);
     }
 
     /**
@@ -121,8 +123,11 @@ class audit_table extends table_sql implements renderable {
      * @return string html used to display the column field.
      * @throws \moodle_exception
      */
-    public function col_activitylink($activity) {
-        return html_writer::link(new moodle_url($activity->activityurl), $activity->activityname);
+    public function col_name($activity) {
+        if ($this->is_downloading()) {
+            return $this->format_text($activity->activityname);
+        }
+        return $this->format_text(html_writer::link(new moodle_url($activity->activityurl), $activity->activityname), FORMAT_HTML);
     }
 
     /**
@@ -132,8 +137,8 @@ class audit_table extends table_sql implements renderable {
      *
      * @return string html used to display the column field.
      */
-    public function col_html5present(audit_activity $activity) {
-        return ($activity->html5present) ? 'Yes' : 'No';
+    public function col_html5(audit_activity $activity) {
+        return $this->format_text(($activity->html5present) ? 'Yes' : 'No');
     }
 
     /**

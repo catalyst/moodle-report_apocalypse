@@ -71,7 +71,7 @@ class audit_manager {
     public static function get_audit_results_paginated($limitfrom=0, $limitnum=0) {
         global $DB;
 
-        $recordset = $DB->get_recordset('report_apocalypse', null, '', '*', $limitfrom, $limitnum);
+        $recordset = $DB->get_recordset('report_apocalypse', null, 'category', '*', $limitfrom, $limitnum);
 
         $activities = self::get_instances($recordset);
 
@@ -141,7 +141,7 @@ class audit_manager {
         }
 
         $sql = "SELECT main.contextid, main.id AS courseid, main.coursefullname, cat.path
-          as category, main.name, main.instanceid, main.component, dualsupport.html5
+          AS category, main.name, main.instanceid, main.component, dualsupport.html5
           FROM (";
 
         $firstmod = true;
