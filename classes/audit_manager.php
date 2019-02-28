@@ -68,10 +68,10 @@ class audit_manager {
      * @throws \dml_exception
      * @throws \moodle_exception
      */
-    public static function get_audit_results_paginated($limitfrom=0, $limitnum=0) {
+    public static function get_audit_results_paginated($limitfrom=0, $limitnum=0, $sort='') {
         global $DB;
 
-        $recordset = $DB->get_recordset('report_apocalypse', null, 'category', '*', $limitfrom, $limitnum);
+        $recordset = $DB->get_recordset('report_apocalypse', null, $sort, '*', $limitfrom, $limitnum);
 
         $activities = self::get_instances($recordset);
 
