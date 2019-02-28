@@ -51,7 +51,7 @@ class renderer extends plugin_renderer_base {
     public function render_description(audit_table $renderable) {
         global $CFG, $DB;
 
-        // This is an abitrary date based on the statements from browser developers relating to "mid 2019".
+        // This is an arbitrary date based on the statements from browser developers relating to "mid 2019".
         $datetimeofapocalypse = strtotime("2019-8-31 0:00");
         $daysremaining = floor(($datetimeofapocalypse - time()) / 86400);
 
@@ -72,8 +72,13 @@ class renderer extends plugin_renderer_base {
                 $output .= $this->heading(get_string('apocalypseishere', 'report_apocalypse'))  . "\n";
             }
 
-            $output .= get_string('apocalypselastaudit', 'report_apocalypse',
-                    userdate($DB->get_field('task_scheduled', 'lastruntime', array('component' => 'report_apocalypse'))))  . "\n";
+            $datetimelastaudit = $DB->get_field('task_scheduled', 'lastruntime', array('component' => 'report_apocalypse'));
+
+            if ($datetimelastaudit > 0) {
+                $output .= get_string('apocalypselastaudit', 'report_apocalypse', userdate($datetimelastaudit)) . "\n";
+            } else {
+                $output .= get_string('noaudit', 'report_apocalypse');
+            }
 
             $output .= $this->box_start();
             $output .= get_string('description', 'report_apocalypse');

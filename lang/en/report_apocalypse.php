@@ -30,7 +30,8 @@ $string['description'] = '<p>This report lists activities, by type, in your site
 <p>Support for Flash ends in mid-2019 when most browsers will disable Flash player and your content will not display.</p>
 <p>Some elearning authoring tools can ‘dual publish’ with HTML5 as a fallback in case Flash isn’t supported by the browser. When HTML5 content has been detected it is shown as a Yes in the ‘HTML5 present’ column.</p>
 <p>If you require help replacing your old Flash content, contact the certified partner <a href="https://www.catalyst.net.nz/products/moodle/?refer=report_apocalypse">Catalyst IT</a></p>';
-
+$string['noaudit'] = '<p>No flash audits have been conducted for this site.</p>
+<p>This report requires cron to be enabled for automatic flash auditing, or the `scheduled_flash_audit` task to be run manually.</p>';
 $string['noflashobjectsfound'] = 'No Flash objects were found in your site.';
 $string['activitytype'] = 'Type';
 $string['dualmode'] = 'HTML5 present';
