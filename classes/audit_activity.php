@@ -84,7 +84,7 @@ class audit_activity {
      *
      * @throws \moodle_exception
      */
-    public function __construct(stdClass $record, array $coursecategorynames) {
+    public function __construct($record, array $coursecategorynames) {
         $this->activity = $record;
         $this->category = $this->get_category_from_record($record, $coursecategorynames);
         $courseurl = new moodle_url('/course/view.php', array('id' => $record->courseid));

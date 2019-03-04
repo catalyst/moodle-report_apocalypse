@@ -88,7 +88,7 @@ class audit_manager {
      * @return array of audit_activity objects.
      * @throws \moodle_exception
      */
-    public static function get_instances(\moodle_recordset $records) {
+    public static function get_instances($records) {
         global $DB;
 
         // Get the course category names and their ids.

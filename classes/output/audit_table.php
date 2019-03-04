@@ -55,7 +55,7 @@ class audit_table extends table_sql implements renderable {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function __construct(string $uniqueid, $url, int $currpage=0, int $pagesize=50, $download='') {
+    public function __construct($uniqueid, $url, $currpage=0, $pagesize=50, $download='') {
         parent::__construct($uniqueid);
 
         $this->set_attribute('id', 'report_apocalypse_table');
@@ -133,11 +133,11 @@ class audit_table extends table_sql implements renderable {
     /**
      * Get content for html5present column.
      *
-     * @param audit_activity $activity object
+     * @param \report_apocalypse\audit_activity $activity object
      *
      * @return string html used to display the column field.
      */
-    public function col_html5(audit_activity $activity) {
+    public function col_html5($activity) {
         return $this->format_text(($activity->html5present) ? 'Yes' : 'No');
     }
 

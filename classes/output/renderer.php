@@ -35,6 +35,12 @@ use report_apocalypse\apocalypse_datetime;
  */
 class renderer extends plugin_renderer_base {
 
+    /**
+     * @param \report_apocalypse\output\audit_table $renderable
+     *
+     * @return string
+     * @throws \coding_exception
+     */
     public function render_audit_table(audit_table $renderable) {
         $output = $this->render_description($renderable);
         $output .= $this->render_table($renderable);
@@ -45,10 +51,11 @@ class renderer extends plugin_renderer_base {
     /**
      * Render the plugin description.
      *
+     * @param \report_apocalypse\output\audit_$renderable
      * @return string HTML for display
      * @throws \coding_exception
      */
-    public function render_description(audit_table $renderable) {
+    public function render_description($renderable) {
         global $CFG, $DB;
 
         // This is an arbitrary date based on the statements from browser developers relating to "mid 2019".
@@ -95,7 +102,7 @@ class renderer extends plugin_renderer_base {
      *
      * @return string HTML for display
      */
-    public function render_table(audit_table $renderable) {
+    public function render_table($renderable) {
 
         ob_start();
         $renderable->out($renderable->pagesize, true);
