@@ -157,8 +157,11 @@ class audit_table extends table_sql implements renderable {
         $total = $DB->count_records('report_apocalypse');
         $sort = $this->get_sql_sort();
         $this->pagesize($pagesize, $total);
-        $activities = audit_manager::get_audit_results_paginated($this->get_page_start(), $this->get_page_size(), $sort);
-        $this->rawdata = $activities;
+        if (!$this->is_downloading()) {
+            $activities = audit_manager::get_audit_results_paginated($this->get_page_start(), $this->get_page_size(), $sort);
+        } else {
+            $activities = audit_manager::get_audit_results_paginated();
+        }        $this->rawdata = $activities;        $this->rawdata = $activities;
         if ($useinitialsbar) {
             $this->initialbars($total > $pagesize);
         }
