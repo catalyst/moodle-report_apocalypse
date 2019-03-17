@@ -86,7 +86,7 @@ class audit_table extends table_sql implements renderable {
      * @return string html used to display the column field.
      */
     public function col_category($activity) {
-        return $this->format_text($activity->category);
+        return $this->format_text(format_string($activity->category));
     }
 
     /**
@@ -99,9 +99,9 @@ class audit_table extends table_sql implements renderable {
      */
     public function col_coursefullname($activity) {
         if ($this->is_downloading()) {
-            return $this->format_text($activity->coursefullname);
+            return $this->format_text(format_string($activity->coursefullname));
         }
-        return $this->format_text(html_writer::link(new moodle_url($activity->courseurl), $activity->coursefullname), FORMAT_HTML);
+        return $this->format_text(html_writer::link(new moodle_url($activity->courseurl), format_string($activity->coursefullname)), FORMAT_HTML);
     }
 
     /**
