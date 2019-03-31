@@ -23,6 +23,8 @@
 
 namespace report_apocalypse;
 
+use core\task\delete_unconfirmed_users_task;
+
 defined('MOODLE_INTERNAL') || die;
 
 /**
@@ -31,6 +33,8 @@ defined('MOODLE_INTERNAL') || die;
  * @package report_apocalypse
  */
 class audit_manager {
+
+    public static $flashextensions = array('%.fla', '%.flv', '%.swf');
 
     /**
      * Run a flash audit on the moodle site.
@@ -42,20 +46,39 @@ class audit_manager {
         global $DB;
 
         $modules = $DB->get_records_menu('modules', array(), '', 'id, name');
-        list($sql, $params) = self::build_sql_and_parameters_for_audit($modules);
-        $recordset = $DB->get_recordset_sql($sql, $params);
+
+        $flashcomponents = [];
+
+        foreach ($modules as $module) {
+            $flashcomponents = array_merge($flashcomponents, self::find_module_flash_components($module));
+        }
+        // Add legacy components.
+        $flashcomponents = array_merge($flashcomponents, self::find_module_flash_components('course', true));
+
+        $html5contextids = $DB->get_fieldset_select('files', 'contextid', 'filename=:filename',
+            ['filename' => 'index_lms_html5.html']);
+
+        // Add the correct html5 dual support flag.
+        foreach ($flashcomponents as $flashcomponent) {
+            $index = array_search($flashcomponent->contextid, $html5contextids);
+            if ($index !== false) {
+                $flashcomponent->html5 = 1;
+                // Remove the context to speed up the checking each iteration.
+                array_splice($html5contextids, $index, 1);
+            } else {
+                $flashcomponent->html5 = 0;
+            }
+        }
 
         $transaction = $DB->start_delegated_transaction();
         try {
             $DB->delete_records('report_apocalypse');
-            self::store_records($recordset);
+            self::store_records($flashcomponents);
 
             $transaction->allow_commit();
         } catch (Exception $e) {
             $transaction->rollback($e);
         }
-
-        $recordset->close();
     }
 
     /**
@@ -89,31 +112,27 @@ class audit_manager {
      * @throws \moodle_exception
      */
     public static function get_instances($records) {
-        global $DB;
-
-        // Get the course category names and their ids.
-        $coursecategorynames = $DB->get_records_menu('course_categories', array(), '', 'id, name');
 
         $activities = array();
         foreach ($records as $activity) {
-            $activities[] = new audit_activity($activity, $coursecategorynames);
+            $activities[] = new audit_activity($activity);
         }
         return $activities;
     }
 
     /**
-     * Store passed in recordset and a transaction record in database.
+     * Store passed in array in the `report_apocalypse` table.
      *
-     * @param \moodle_recordset $recordset Records to store
+     * @param array $records Records to store
      *
      * @return bool true if successful, false if not.
      * @throws \Exception
      */
-    public static function store_records($recordset) {
+    public static function store_records($records) {
         global $DB;
 
-        if ($recordset->valid()) {
-            $DB->insert_records('report_apocalypse', $recordset);
+        if (!empty($records)) {
+            $DB->insert_records('report_apocalypse', $records);
             return true;
         } else {
             return false;
@@ -121,75 +140,46 @@ class audit_manager {
     }
 
     /**
-     * Build a list consisting of the SQL query string and an array of the parameters
-     * required to conduct the audit.
+     * Run a database search to find all flash components in a module.
      *
-     * @param array $modules - the names of the modules to include.
-     * @param string $sort - the field to sort by.
-     * @return array A list containing the constructed sql fragment and an array of parameters.
+     * @param string $module The folder name of the module.
+     * @param bool $legacy flag indicating if module is legacy, when `true` indicates no
+     * plugin type, when `false` indicates plugin type `mod`.
+     *
+     * @return array of objects representing flash components found in module
+     * @throws \dml_exception
      */
-    public static function build_sql_and_parameters_for_audit($modules, $sort = '') {
+
+    public static function find_module_flash_components($module, $legacy=false) {
         global $DB;
 
-        $filetypes = array('%.fla', '%.flv', '%.swf');
-        $params = array();
+        $component = ($legacy) ? $module : 'mod_' . $module;
 
-        // Create main set of likes to use.
-        $likes = array();
-        foreach ($filetypes as $type) {
-            $likes[] = $DB->sql_like('f.filename', '?', false);
+        $sql = "SELECT DISTINCT f.contextid, c.id AS courseid, c.fullname AS coursefullname, cat.name AS category, ";
+        $sql .= ($legacy) ? "f.filename AS name, " : "s.name, ";
+        $sql .= "cx.instanceid, ";
+        $sql .= ($legacy) ? "'legacy' AS component " : "f.component ";
+        $sql .= "FROM mdl_files f "
+          . "JOIN mdl_context cx on cx.id = f.contextid ";
+
+        if (!$legacy) {
+            $sql .= "JOIN mdl_course_modules cm on cm.id = cx.instanceid "
+              . "JOIN mdl_$module s on s.id = cm.instance "
+              . "JOIN mdl_course c on c.id = s.course ";
+        } else {
+            $sql .= "JOIN mdl_course c on c.id = cx.instanceid ";
         }
 
-        $sql = "SELECT main.contextid, main.id AS courseid, main.coursefullname, cat.path
-          AS category, main.name, main.instanceid, main.component, dualsupport.html5
-          FROM (";
+        $sql .= "JOIN mdl_course_categories cat on cat.id = c.category "
+            . "WHERE f.component = '$component' AND ";
 
-        $firstmod = true;
-        foreach ($modules as $module) {
-            foreach ($filetypes as $type) {
-                $params[] = $type;
-            }
-            if (!$firstmod) {
-                $sql .= " UNION ";
-            }
-            $sql .= " SELECT DISTINCT f.contextid, c.id, c.fullname AS coursefullname, c.category, s.name, cx.instanceid, f.component
-          FROM {files} f
-          JOIN {context} cx on cx.id = f.contextid
-          JOIN {course_modules} cm on cm.id = cx.instanceid
-          JOIN {".$module."} s on s.id = cm.instance
-          JOIN {course} c on c.id = s.course
-          WHERE f.component = 'mod_$module' AND
-           (".implode(' or ', $likes).")";
-
-            $firstmod = false;
+        if ($legacy) {
+            $sql .= "f.filearea = 'legacy' AND ";
         }
 
-        // Join with legacy files search.
-        foreach ($filetypes as $type) {
-            $params[] = $type;
-        }
-        $sql .= " UNION SELECT DISTINCT f.contextid, c.id, c.fullname, c.category, f.filename as name,
-                                cx.instanceid, f.filearea as component
-          FROM {files} f
-          JOIN {context} cx on cx.id = f.contextid
-          JOIN {course} c on c.id = cx.instanceid
-          WHERE f.component = 'course' AND
-                (".implode(' or ', $likes).")";
+        $sql .= "(LOWER(f.filename) LIKE LOWER(?) or LOWER(f.filename) LIKE LOWER(?) or LOWER(f.filename) LIKE LOWER(?))";
 
-        // Close off union sql.
-        $sql .= ") as main";
-
-        // Now join with data on all contexts that contain html5 content (possible dual support.)
-        $sql .= " LEFT JOIN (SELECT distinct contextid, 1 as html5
-                  FROM {files}
-                 WHERE filename = 'index_lms_html5.html') dualsupport on dualsupport.contextid = main.contextid ";
-
-        // Now Join with course category for this course.
-        $sql .= " JOIN {course_categories} cat ON cat.id = main.category";
-        if (!empty($sort)) {
-            $sql .= " ORDER BY ".$sort;
-        }
-
-        return array($sql, $params);
+        return $DB->get_records_sql($sql, static::$flashextensions);
     }
+
 }

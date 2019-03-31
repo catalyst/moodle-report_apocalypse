@@ -23,6 +23,8 @@
 
 namespace report_apocalypse\task;
 
+defined('MOODLE_INTERNAL') || die;
+
 use \core\task\scheduled_task;
 use report_apocalypse\audit_manager;
 use report_apocalypse\flash_audit;

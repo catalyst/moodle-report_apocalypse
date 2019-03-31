@@ -101,7 +101,8 @@ class audit_table extends table_sql implements renderable {
         if ($this->is_downloading()) {
             return $this->format_text(format_string($activity->coursefullname));
         }
-        return $this->format_text(html_writer::link(new moodle_url($activity->courseurl), format_string($activity->coursefullname)), FORMAT_HTML);
+        return $this->format_text(html_writer::link(new moodle_url($activity->courseurl),
+            format_string($activity->coursefullname)), FORMAT_HTML);
     }
 
     /**

@@ -84,9 +84,9 @@ class audit_activity {
      *
      * @throws \moodle_exception
      */
-    public function __construct($record, array $coursecategorynames) {
+    public function __construct($record) {
         $this->activity = $record;
-        $this->category = $this->get_category_from_record($record, $coursecategorynames);
+        $this->category = $record->category;
         $courseurl = new moodle_url('/course/view.php', array('id' => $record->courseid));
         $this->courseurl = $courseurl->out();
         $this->coursefullname = $record->coursefullname;
@@ -94,31 +94,6 @@ class audit_activity {
         $this->activityurl = $this->get_activity_url_from_record($this->type, $record);
         $this->activityname = $record->name;
         $this->html5present = empty($record->html5) ? 0 : 1;
-    }
-
-    /**
-     * Get category from record
-     *
-     * @param mixed $record a fieldset object containing a record
-     *
-     * @return string  The category name or empty string if none found
-     * @throws \dml_exception
-     */
-    public function get_category_from_record($record, $coursecategorynames) {
-
-        $category = '';
-        if (!empty($record->category)) {
-            $categories = explode('/', $record->category);
-            foreach ($categories as $c) {
-                if (!empty($c) && !empty($coursecategorynames[$c])) {
-                    if (!empty($category)) {
-                        $category .= " / ";
-                    }
-                    $category .= $coursecategorynames[$c];
-                }
-            }
-        }
-        return $category;
     }
 
     /**
@@ -132,6 +107,7 @@ class audit_activity {
      */
     public static function get_activity_url_from_record($type = '', $record) {
         if ($type == 'legacy') {
+            // Direct the link to the legacy file area of the course.
             $activityurl = new moodle_url("/files/index.php", array('contextid' => $record->contextid));
         } else {
             $activityurl = new moodle_url("/mod/$type/view.php", array('id' => $record->instanceid));
