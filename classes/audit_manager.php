@@ -159,18 +159,18 @@ class audit_manager {
         $sql .= ($legacy) ? "f.filename AS name, " : "s.name, ";
         $sql .= "cx.instanceid, ";
         $sql .= ($legacy) ? "'legacy' AS component " : "f.component ";
-        $sql .= "FROM mdl_files f "
-          . "JOIN mdl_context cx on cx.id = f.contextid ";
+        $sql .= "FROM {files} f "
+          . "JOIN {context} cx on cx.id = f.contextid ";
 
         if (!$legacy) {
-            $sql .= "JOIN mdl_course_modules cm on cm.id = cx.instanceid "
-              . "JOIN mdl_$module s on s.id = cm.instance "
-              . "JOIN mdl_course c on c.id = s.course ";
+            $sql .= "JOIN {course_modules} cm on cm.id = cx.instanceid "
+              . "JOIN {$module} s on s.id = cm.instance "
+              . "JOIN {course} c on c.id = s.course ";
         } else {
-            $sql .= "JOIN mdl_course c on c.id = cx.instanceid ";
+            $sql .= "JOIN {course} c on c.id = cx.instanceid ";
         }
 
-        $sql .= "JOIN mdl_course_categories cat on cat.id = c.category "
+        $sql .= "JOIN {course_categories} cat on cat.id = c.category "
             . "WHERE f.component = '$component' AND ";
 
         if ($legacy) {
