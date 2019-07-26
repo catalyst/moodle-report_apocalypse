@@ -164,7 +164,7 @@ class audit_manager {
 
         if (!$legacy) {
             $sql .= "JOIN {course_modules} cm on cm.id = cx.instanceid "
-              . "JOIN {$module} s on s.id = cm.instance "
+              . "JOIN {{$module}} s on s.id = cm.instance "
               . "JOIN {course} c on c.id = s.course ";
         } else {
             $sql .= "JOIN {course} c on c.id = cx.instanceid ";
