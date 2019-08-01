@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2019022001;
+$plugin->version   = 2019080200;
 $plugin->requires  = 2015051109; // Requires Moodle 2.9.
 $plugin->component = 'report_apocalypse';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.2';
+$plugin->release   = '1.3';
