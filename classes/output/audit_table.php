@@ -99,7 +99,8 @@ class audit_table extends table_sql implements renderable {
      */
     public function col_coursefullname($activity) {
         if ($this->is_downloading()) {
-            return $this->format_text(format_string($activity->coursefullname));
+            return format_text(html_writer::link(new moodle_url($activity->courseurl),
+                format_string($activity->coursefullname)), FORMAT_HTML);
         }
         return $this->format_text(html_writer::link(new moodle_url($activity->courseurl),
             format_string($activity->coursefullname)), FORMAT_HTML);
@@ -126,7 +127,7 @@ class audit_table extends table_sql implements renderable {
      */
     public function col_name($activity) {
         if ($this->is_downloading()) {
-            return $this->format_text($activity->activityname);
+            return format_text(html_writer::link(new moodle_url($activity->activityurl), $activity->activityname), FORMAT_HTML);
         }
         return $this->format_text(html_writer::link(new moodle_url($activity->activityurl), $activity->activityname), FORMAT_HTML);
     }
@@ -162,7 +163,8 @@ class audit_table extends table_sql implements renderable {
             $activities = audit_manager::get_audit_results_paginated($this->get_page_start(), $this->get_page_size(), $sort);
         } else {
             $activities = audit_manager::get_audit_results_paginated();
-        }        $this->rawdata = $activities;        $this->rawdata = $activities;
+        }
+        $this->rawdata = $activities;
         if ($useinitialsbar) {
             $this->initialbars($total > $pagesize);
         }
