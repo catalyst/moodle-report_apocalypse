@@ -30,4 +30,5 @@ $plugin->requires  = 2015051109; // Requires Moodle 2.9.
 $plugin->component = 'report_apocalypse';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = '1.3';
-$plugin->supported = [401]; // no longer supported after Moodle 4.1
+$plugin->supported = [401]; 
+$plugin->incompatible = [402, 403]; // no longer supported after Moodle 4.1
