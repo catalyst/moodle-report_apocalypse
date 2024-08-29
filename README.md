@@ -8,7 +8,9 @@
 
 Version Support
 -------------
-The master branch supports Moodle 2.9 and higher, and Totara Learn 2.9 and higher.
+**This master branch is no longer supported after Moodle 4.4**
+
+The master branch supports from Moodle 2.9 to Moodle 4.4, and Totara Learn 2.9 and higher.
 
 What is this?
 -------------
