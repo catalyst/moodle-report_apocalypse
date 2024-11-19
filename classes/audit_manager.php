@@ -155,7 +155,7 @@ class audit_manager {
 
         $component = ($legacy) ? $module : 'mod_' . $module;
 
-        $sql = "SELECT DISTINCT f.contextid, c.id AS courseid, c.fullname AS coursefullname, cat.name AS category, ";
+        $sql = "SELECT f.id, f.contextid, c.id AS courseid, c.fullname AS coursefullname, cat.name AS category, ";
         $sql .= ($legacy) ? "f.filename AS name, " : "s.name, ";
         $sql .= "cx.instanceid, ";
         $sql .= ($legacy) ? "'legacy' AS component " : "f.component ";
