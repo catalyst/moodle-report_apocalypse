@@ -105,7 +105,7 @@ class audit_activity {
      * @return string Resulting URL
      * @throws \moodle_exception
      */
-    public static function get_activity_url_from_record($type = '', $record) {
+    public static function get_activity_url_from_record($type, $record) {
         if ($type == 'legacy') {
             // Direct the link to the legacy file area of the course.
             $activityurl = new moodle_url("/files/index.php", array('contextid' => $record->contextid));
